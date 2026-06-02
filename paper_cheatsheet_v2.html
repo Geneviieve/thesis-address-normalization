@@ -1,0 +1,1733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paper Cheatsheet — Jakarta Address Normalization</title>
+<style>
+:root {
+  --bg:       #0f1117;
+  --surface:  #1a1d27;
+  --surface2: #22263a;
+  --border:   #2a2e48;
+  --text:     #e4e6f0;
+  --muted:    #7c82a0;
+  --accent:   #6c8cff;
+  --accent2:  #a78bfa;
+  --orange:   #fb923c;
+  --teal:     #2dd4bf;
+  --yellow:   #fbbf24;
+  --green:    #34d399;
+
+  --rh: #22c55e;   /* high */
+  --rm: #eab308;   /* medium */
+  --rd: #f87171;   /* diff task */
+  --rl: #4b5563;   /* low */
+
+  --sidebar-w: 272px;
+  --topbar-h:  54px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── TOP BAR ─────────────────────────────────────── */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 18px;
+  z-index: 200;
+}
+.topbar-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.topbar-sub {
+  font-size: 0.7rem;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sep { color: var(--border); font-size: 1.1rem; }
+
+.search-box {
+  flex: 1;
+  max-width: 320px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  outline: none;
+  transition: border-color .2s;
+}
+.search-box:focus { border-color: var(--accent); }
+.search-box::placeholder { color: var(--muted); }
+
+.filter-group { display: flex; gap: 5px; flex-shrink: 0; }
+.fbtn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.fbtn:hover { color: var(--text); border-color: #444; }
+.fbtn.on { color: #fff; border-color: transparent; }
+.fbtn[data-f="all"].on   { background: #3b4263; }
+.fbtn[data-r="high"].on  { background: rgba(34,197,94,.35); color: var(--rh); border-color: var(--rh); }
+.fbtn[data-r="med"].on   { background: rgba(234,179,8,.25); color: var(--rm); border-color: var(--rm); }
+.fbtn[data-r="diff"].on  { background: rgba(248,113,113,.2); color: var(--rd); border-color: var(--rd); }
+.fbtn[data-r="low"].on   { background: rgba(75,85,99,.4); color: #9ca3af; border-color: #4b5563; }
+.fbtn[data-m="llm"].on   { background: rgba(167,139,250,.2); color: var(--accent2); border-color: var(--accent2); }
+.fbtn[data-m="enc"].on   { background: rgba(45,212,191,.15); color: var(--teal); border-color: var(--teal); }
+.fbtn[data-m="rule"].on  { background: rgba(251,191,36,.15); color: var(--yellow); border-color: var(--yellow); }
+.fbtn[data-m="hybrid"].on{ background: rgba(251,146,60,.15); color: var(--orange); border-color: var(--orange); }
+
+.vis-count {
+  font-size: 0.7rem;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.vis-count b { color: var(--text); }
+
+/* ─── BODY LAYOUT ──────────────────────────────────── */
+.layout {
+  display: flex;
+  margin-top: var(--topbar-h);
+  min-height: calc(100vh - var(--topbar-h));
+}
+
+/* ─── SIDEBAR ──────────────────────────────────────── */
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  position: sticky;
+  top: var(--topbar-h);
+  height: calc(100vh - var(--topbar-h));
+  overflow-y: auto;
+  padding: 10px 0 24px;
+  flex-shrink: 0;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.sb-section {
+  padding: 8px 14px 4px;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: .9px;
+  color: var(--muted);
+  font-weight: 700;
+}
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: background .15s, border-color .15s;
+  text-decoration: none;
+}
+.sb-item:hover { background: var(--surface2); }
+.sb-item.active { background: rgba(108,140,255,.1); border-left-color: var(--accent); }
+.sb-item.hidden-paper { display: none; }
+
+.sb-dot {
+  width: 7px; height: 7px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.sb-item[data-r="high"] .sb-dot { background: var(--rh); }
+.sb-item[data-r="med"]  .sb-dot { background: var(--rm); }
+.sb-item[data-r="diff"] .sb-dot { background: var(--rd); }
+.sb-item[data-r="low"]  .sb-dot { background: var(--rl); }
+
+.sb-ref {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+  min-width: 22px;
+}
+.sb-name {
+  font-size: 0.73rem;
+  color: var(--text);
+  line-height: 1.3;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ─── MAIN CONTENT ─────────────────────────────────── */
+.main {
+  flex: 1;
+  padding: 18px 24px 40px;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* ─── PAPER CARD ───────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  scroll-margin-top: calc(var(--topbar-h) + 14px);
+  transition: border-color .2s;
+}
+.card:hover { border-color: rgba(108,140,255,.35); }
+.card.hidden { display: none; }
+
+/* Card header — always visible, click to toggle */
+.card-hdr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--surface2);
+  transition: background .15s;
+}
+.card-hdr:hover { background: #252944; }
+.card.open .card-hdr { background: #1e2238; border-bottom: 1px solid var(--border); }
+
+.ref-tag {
+  background: rgba(108,140,255,.14);
+  color: var(--accent);
+  border: 1px solid rgba(108,140,255,.28);
+  font-size: 0.66rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.card-titles { flex: 1; min-width: 0; }
+.card-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+.card-sub {
+  font-size: 0.69rem;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rel-pill {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.rp-high { background: rgba(34,197,94,.14); color: var(--rh); border: 1px solid rgba(34,197,94,.3); }
+.rp-med  { background: rgba(234,179,8,.14);  color: var(--rm); border: 1px solid rgba(234,179,8,.3); }
+.rp-diff { background: rgba(248,113,113,.13); color: var(--rd); border: 1px solid rgba(248,113,113,.3); }
+.rp-low  { background: rgba(75,85,99,.2);  color: #9ca3af; border: 1px solid rgba(75,85,99,.4); }
+
+.toggle-icon {
+  font-size: 0.7rem;
+  color: var(--muted);
+  transition: transform .2s;
+  flex-shrink: 0;
+}
+.card.open .toggle-icon { transform: rotate(90deg); }
+
+/* Card body — hidden by default */
+.card-body {
+  display: none;
+  padding: 14px 16px;
+}
+.card.open .card-body { display: block; }
+
+/* Row layout inside body */
+.rows { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+.row-full { grid-column: 1 / -1; }
+
+.row-lbl {
+  font-size: 0.61rem;
+  text-transform: uppercase;
+  letter-spacing: .7px;
+  color: var(--muted);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.row-val {
+  font-size: 0.78rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Flow strip */
+.flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.fstep {
+  background: rgba(108,140,255,.1);
+  border: 1px solid rgba(108,140,255,.22);
+  color: var(--accent);
+  font-size: 0.67rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.farr { color: var(--border); font-size: 0.72rem; font-weight: 700; }
+
+/* Tag chips */
+.tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tag {
+  font-size: 0.66rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+.tag.m { background: rgba(167,139,250,.1); color: var(--accent2); border: 1px solid rgba(167,139,250,.3); }
+.tag.d { background: rgba(45,212,191,.08); color: var(--teal);    border: 1px solid rgba(45,212,191,.25); }
+.tag.t { background: rgba(251,191,36,.08); color: var(--yellow);  border: 1px solid rgba(251,191,36,.25); }
+
+/* Relevance block */
+.rel-block {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: 7px;
+  border-left: 3px solid var(--accent);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text);
+}
+.rel-block .atk  { color: var(--rd);     font-weight: 600; }
+.rel-block .ctr  { color: var(--green);  font-weight: 600; }
+.rel-block .gap  { color: var(--yellow); font-weight: 600; }
+
+hr.divider {
+  border: none;
+  border-top: 1px dashed var(--border);
+  margin: 10px 0;
+}
+
+/* ─── SCROLLBAR ─────────────────────────────────────── */
+.main::-webkit-scrollbar { width: 5px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════ TOP BAR ══════════ -->
+<div class="topbar">
+  <div class="topbar-title">📄 Paper Cheatsheet</div>
+  <div class="topbar-sub">Jakarta Address Normalization · 24 papers</div>
+  <span class="sep">|</span>
+  <input class="search-box" id="searchBox" type="text" placeholder="Search title, model, domain…" oninput="applyFilters()">
+  <span class="sep">|</span>
+  <div class="filter-group" id="relFilters">
+    <button class="fbtn on" data-f="all"  onclick="setFilter('rel','all',this)">All</button>
+    <button class="fbtn"    data-r="high" onclick="setFilter('rel','high',this)">🟢 High</button>
+    <button class="fbtn"    data-r="med"  onclick="setFilter('rel','med',this)">🟡 Med</button>
+    <button class="fbtn"    data-r="diff" onclick="setFilter('rel','diff',this)">🔴 Diff</button>
+    <button class="fbtn"    data-r="low"  onclick="setFilter('rel','low',this)">⚫ Low</button>
+  </div>
+  <span class="sep">|</span>
+  <div class="filter-group" id="methodFilters">
+    <button class="fbtn on" data-f="all"   onclick="setFilter('method','all',this)">All</button>
+    <button class="fbtn"    data-m="llm"   onclick="setFilter('method','llm',this)">LLM</button>
+    <button class="fbtn"    data-m="enc"   onclick="setFilter('method','enc',this)">Encoder</button>
+    <button class="fbtn"    data-m="rule"  onclick="setFilter('method','rule',this)">Rule</button>
+    <button class="fbtn"    data-m="hybrid" onclick="setFilter('method','hybrid',this)">Hybrid</button>
+  </div>
+  <div class="vis-count"><b id="vc">24</b> / 24</div>
+</div>
+
+<!-- ══════════ LAYOUT ══════════ -->
+<div class="layout">
+
+<!-- ══════ SIDEBAR ══════ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sb-section">Address Parsing / LMs</div>
+  <a class="sb-item" data-r="high"  href="#p1"  onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[1]</span><span class="sb-name">AddrLLM</span></a>
+  <a class="sb-item" data-r="med"   href="#p2"  onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[2]</span><span class="sb-name">Evaluation of LLMs for Addr. Parsing</span></a>
+  <a class="sb-item" data-r="med"   href="#p3"  onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[3]</span><span class="sb-name">Issues &amp; Challenges in Addr. Parsing</span></a>
+  <a class="sb-item" data-r="high"  href="#p7"  onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[7]</span><span class="sb-name">Developing an Address Parser</span></a>
+  <a class="sb-item" data-r="high"  href="#p8"  onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[8]</span><span class="sb-name">Deepparse</span></a>
+  <a class="sb-item" data-r="high"  href="#p15" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[15]</span><span class="sb-name">Multinational Address Parsing</span></a>
+  <a class="sb-item" data-r="high"  href="#p16" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[16]</span><span class="sb-name">G2PTL</span></a>
+  <a class="sb-item" data-r="high"  href="#p17" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[17]</span><span class="sb-name">Can LLMs Substitute Manual Labeling?</span></a>
+  <a class="sb-item" data-r="med"   href="#p28" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[28]</span><span class="sb-name">Toward Building Addr. Normalization</span></a>
+
+  <div class="sb-section">Generative + Verification</div>
+  <a class="sb-item" data-r="high"  href="#p5"  onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[5]</span><span class="sb-name">FightingCrimeWith (XLM-R vs LLMs)</span></a>
+  <a class="sb-item" data-r="diff"  href="#p12" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[12]</span><span class="sb-name">ReaGeo (Geohash + GRPO)</span></a>
+  <a class="sb-item" data-r="high"  href="#p18" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[18]</span><span class="sb-name">GeoAgent (LLM + Map API)</span></a>
+  <a class="sb-item" data-r="high"  href="#p22" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[22]</span><span class="sb-name">IsChatGPT (vs BiLSTM-CRF)</span></a>
+  <a class="sb-item" data-r="high"  href="#p25" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[25]</span><span class="sb-name">Mitigating Geospatial Hallucination</span></a>
+  <a class="sb-item" data-r="diff"  href="#p26" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[26]</span><span class="sb-name">Coordinates from Context</span></a>
+  <a class="sb-item" data-r="high"  href="#p27" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[27]</span><span class="sb-name">SLOT (Schema-Constrained Output)</span></a>
+
+  <div class="sb-section">Indonesian / Regional Context</div>
+  <a class="sb-item" data-r="high"  href="#p4"  onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[4]</span><span class="sb-name">Survei dan Pembuatan Dataset Indonesia</span></a>
+  <a class="sb-item" data-r="med"   href="#p9"  onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[9]</span><span class="sb-name">GeoIndia (Indian Informal Addresses)</span></a>
+  <a class="sb-item" data-r="high"  href="#p10" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[10]</span><span class="sb-name">Toponym Resolution</span></a>
+  <a class="sb-item" data-r="med"   href="#p11" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[11]</span><span class="sb-name">AddrKG-LLM (Patient Address)</span></a>
+  <a class="sb-item" data-r="high"  href="#p20" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[20]</span><span class="sb-name">Gazetteer-Based Entity Resolution</span></a>
+  <a class="sb-item" data-r="med"   href="#p21" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[21]</span><span class="sb-name">A System for Name/Address Resolution</span></a>
+  <a class="sb-item" data-r="high"  href="#p23" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[23]</span><span class="sb-name">Integration of Fuzzy (Bali Banjar)</span></a>
+  <a class="sb-item" data-r="med"   href="#p24" onclick="activeSb(this)"><div class="sb-dot"></div><span class="sb-ref">[24]</span><span class="sb-name">Geospatially Informed Embeddings</span></a>
+</nav>
+
+<!-- ══════ MAIN ══════ -->
+<main class="main" id="mainContent">
+
+<!-- helper macro: all cards follow this structure -->
+
+<!-- ══ [1] AddrLLM ══ -->
+<div class="card" id="p1" data-r="high" data-m="hybrid" data-txt="addrllm chinese logistics jd reinforcement learning rag sft">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[1]</span>
+    <div class="card-titles">
+      <div class="card-title">AddrLLM: Address Rewriting via Large Language Model on Nationwide Logistics Data</div>
+      <div class="card-sub">JD Logistics, China · 93M addresses · SFT + PPO + RAG</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Raw address text</span><span class="farr">→</span>
+          <span class="fstep">SFT (AEP + rewriting, 60M)</span><span class="farr">→</span>
+          <span class="fstep">PPO RL (geocoding reward)</span><span class="farr">→</span>
+          <span class="fstep">Address-centric RAG</span><span class="farr">→</span>
+          <span class="fstep">Normalized address</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">SFT (60M samples)</span>
+          <span class="tag m">PPO RL</span>
+          <span class="tag m">BERT RAG (200M pairs)</span>
+          <span class="tag t">Three-stage hybrid</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Free-text Chinese address strings (abbreviated, typo-ridden, incomplete)</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Normalized full address + correction category labels</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Logistics (JD Zhejiang)</span><span class="tag d">China</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Address abbreviations, typos, missing district/street info (43% parcel re-routing reduction).<br>
+      <span class="ctr">Counter:</span> SFT generative rewriting → RL alignment for semantic fidelity → spatial RAG from complete geographic DB.<br>
+      <span class="gap">Thesis gap:</span> Assumes a <em>complete</em> Chinese admin DB. Does NOT handle rumpang (structurally absent entries). Thesis Stage 2 AdminVerifier replaces RAG with deterministic indexed lookup + null-honesty for incomplete DB.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [2] Evaluationof ══ -->
+<div class="card" id="p2" data-r="med" data-m="llm" data-txt="evaluation llm address parsing benchmark zero-shot few-shot gpt">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[2]</span>
+    <div class="card-titles">
+      <div class="card-title">Evaluation of LLMs for Address Parsing and Component Extraction</div>
+      <div class="card-sub">Benchmarking GPT-3/4 zero-shot &amp; few-shot on structured address fields</div>
+    </div>
+    <span class="rel-pill rp-med">Medium</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Address string</span><span class="farr">→</span>
+          <span class="fstep">LLM prompting (0/few-shot)</span><span class="farr">→</span>
+          <span class="fstep">Structured fields</span><span class="farr">→</span>
+          <span class="fstep">F1 evaluation</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">GPT-4 / GPT-3.5</span>
+          <span class="tag m">Open-source LLMs</span>
+          <span class="tag t">Zero/few-shot prompting</span>
+          <span class="tag t">Benchmarking</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Address strings across multiple locales/formats</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Per-field parsed address components + comparative F1 metrics</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">NLP Benchmarking</span><span class="tag d">Multi-locale</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Quantifies the gap between zero-shot LLM capability and task-specific address parsing.<br>
+      <span class="ctr">Counter:</span> Systematic prompting with component-level F1 evaluation per field.<br>
+      <span class="gap">Thesis relevance:</span> Provides evidence that generic LLMs underperform on structured address parsing — directly motivates domain-adapted SFT (QLoRA Llama-3.1-8B). Establishes the baseline the thesis must beat.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [3] IssuesandChallenges ══ -->
+<div class="card" id="p3" data-r="med" data-m="rule" data-txt="issues challenges address parsing nlp survey taxonomy data quality errors">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[3]</span>
+    <div class="card-titles">
+      <div class="card-title">Issues and Challenges in Address Parsing and Geocoding</div>
+      <div class="card-sub">Survey / position paper — address error taxonomy and open challenges</div>
+    </div>
+    <span class="rel-pill rp-med">Medium</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Literature survey</span><span class="farr">→</span>
+          <span class="fstep">Error taxonomy</span><span class="farr">→</span>
+          <span class="fstep">Challenge classification</span><span class="farr">→</span>
+          <span class="fstep">Research agenda</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags"><span class="tag t">Survey / Taxonomy</span><span class="tag t">No ML model</span></div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Literature corpus on address parsing systems and failure modes</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Error typology + open research challenges in address parsing/geocoding</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Survey / Meta-analysis</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Lack of standardized error categorization for address data quality problems.<br>
+      <span class="ctr">Counter:</span> Proposes typologies for address errors across domains and regions.<br>
+      <span class="gap">Thesis relevance:</span> Provides theoretical grounding for the two-error-mode framework (syntactic chaos + rumpang). The survey's error taxonomy validates treating structural incompleteness separately from lexical noise.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [4] SurveidanPembuatan ══ -->
+<div class="card" id="p4" data-r="high" data-m="rule" data-txt="indonesian address dataset pembuatan bps kelurahan kecamatan sni snI 9037">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[4]</span>
+    <div class="card-titles">
+      <div class="card-title">Survei dan Pembuatan Dataset Alamat Indonesia</div>
+      <div class="card-sub">Indonesian address dataset construction — BPS-based, SNI 9037:2021 aligned</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">BPS admin records</span><span class="farr">→</span>
+          <span class="fstep">Schema design (SNI-aligned)</span><span class="farr">→</span>
+          <span class="fstep">Data collection / annotation</span><span class="farr">→</span>
+          <span class="fstep">Indonesian address dataset</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag t">Dataset construction</span>
+          <span class="tag t">Manual annotation</span>
+          <span class="tag t">Rule-based schema</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Indonesian administrative records (BPS), raw user-entered address strings</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Structured dataset: jalan, RT/RW, kelurahan, kecamatan, kota, kodepos fields</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Indonesia</span><span class="tag d">Administrative Data</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Absence of standardized, publicly available Indonesian address datasets for NLP.<br>
+      <span class="ctr">Counter:</span> Constructs dataset using BPS administrative taxonomy aligned with SNI 9037:2021.<br>
+      <span class="gap">Thesis relevance:</span> Directly relevant as foundational context. The 30.1% null kelurahan and 34.2% null kodepos in thesis data confirms the rumpang problem this paper's dataset partially exposes. Thesis extends with 230K hybrid synthetic training samples.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [5] FightingCrimeWith ══ -->
+<div class="card" id="p5" data-r="high" data-m="enc" data-txt="fighting crime financial payment xlm roberta encoder noisy multinational swift iso">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[5]</span>
+    <div class="card-titles">
+      <div class="card-title">Fighting Crime with Address Parsing: Multinational Financial Addresses</div>
+      <div class="card-sub">XLM-RoBERTa-Large F1=0.924 vs. Mistral-7B F1=0.711 — encoder wins on noisy data</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Noisy address string</span><span class="farr">→</span>
+          <span class="fstep">Token classification (NER)</span><span class="farr">→</span>
+          <span class="fstep">BIO tagging</span><span class="farr">→</span>
+          <span class="fstep">Structured fields + OOA class</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">XLM-RoBERTa-Large (winner)</span>
+          <span class="tag m">Mistral-7B (SFT, 1000 samples)</span>
+          <span class="tag t">Token classification / NER</span>
+          <span class="tag t">Augmented DeepParse data</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Multinational payment/financial address strings with OOA tokens, abbreviations, typos, mixed languages</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Tagged fields: StreetNumber, Unit, Street, Municipality, Province, PostalCode, Country + OOA class</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Financial (SWIFT ISO 20022)</span><span class="tag d">Multinational</span><span class="tag d">Compliance/KYC</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Noisy financial addresses. LLM hallucinations explicitly documented (modified word index, nested JSON, invented country names).<br>
+      <span class="ctr">Counter:</span> Fine-tuned encoder-only model substantially beats generative LLMs. XLM-RoBERTa F1=0.924 vs. Mistral-7B F1=0.711.<br>
+      <span class="gap">Thesis relevance:</span> Core evidence for <em>Proof-of-Sufficiency</em> — task-specialized smaller models dominate large generative LLMs. Also validates OOA/rumpang as a distinct category. LLM hallucination evidence cited in thesis motivation.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [7] DevelopingAddress ══ -->
+<div class="card" id="p7" data-r="high" data-m="hybrid" data-txt="developing address standardization parser crf regex rule-based segmentation">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[7]</span>
+    <div class="card-titles">
+      <div class="card-title">Developing an Address Standardization and Parsing System</div>
+      <div class="card-sub">Rule-based + CRF address parser — multi-format normalization baseline</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Raw address string</span><span class="farr">→</span>
+          <span class="fstep">Tokenization + preprocessing</span><span class="farr">→</span>
+          <span class="fstep">Rule-based segmentation</span><span class="farr">→</span>
+          <span class="fstep">CRF classifier</span><span class="farr">→</span>
+          <span class="fstep">Normalized fields</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">CRF (Conditional Random Field)</span>
+          <span class="tag t">Regex rules</span>
+          <span class="tag t">Rule-based segmentation</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Free-form address strings in mixed formats (abbreviated, postal, informal)</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Structured address fields compliant with postal standards</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Postal / General</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Inconsistent format variation requiring normalization to a standard schema.<br>
+      <span class="ctr">Counter:</span> Hand-crafted rules (regex) combined with CRF for probabilistic sequence labeling.<br>
+      <span class="gap">Thesis relevance:</span> Classic pre-LLM baseline. Shows why rule-based systems fail at scale with informal Jakarta addresses — too brittle for syntactic chaos. Thesis replaces this with QLoRA-tuned generative model in Stage 1.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [8] Deepparse ══ -->
+<div class="card" id="p8" data-r="high" data-m="enc" data-txt="deepparse multilingual address parser fasttext attention transformer open source Indonesian 64 72">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[8]</span>
+    <div class="card-titles">
+      <div class="card-title">Deepparse: A Universal Multilingual Address Parser</div>
+      <div class="card-sub">Open-source transformer parser — only 64–72% zero-shot on Indonesian → motivates SFT</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Address string</span><span class="farr">→</span>
+          <span class="fstep">FastText embeddings</span><span class="farr">→</span>
+          <span class="fstep">Attention-based Seq2Seq</span><span class="farr">→</span>
+          <span class="fstep">Token-level field tags</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">FastText + Attention Seq2Seq</span>
+          <span class="tag t">Multilingual pretrain (OpenAddress)</span>
+          <span class="tag t">Open-source Python library</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Address strings in 20+ languages</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Token-tagged fields (StreetNumber, Street, Unit, Municipality, Province, PostalCode)</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Multilingual / General</span><span class="tag d">Postal</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Lack of multilingual parsers; training from scratch per language is expensive.<br>
+      <span class="ctr">Counter:</span> Unified multilingual model trained once, zero-shot to new languages.<br>
+      <span class="gap">Thesis relevance:</span> <em>Key motivating baseline.</em> Only 64–72% zero-shot on Indonesian — directly motivates SFT with QLoRA Llama-3.1-8B. Field schema also incompatible with SNI 9037:2021 (no kelurahan, RT/RW, kodepos).
+    </div>
+  </div>
+</div>
+
+<!-- ══ [9] GeoIndia ══ -->
+<div class="card" id="p9" data-r="med" data-m="hybrid" data-txt="geoindia india geocoding informal landmark addressing crf ner">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[9]</span>
+    <div class="card-titles">
+      <div class="card-title">GeoIndia: Geocoding Indian Addresses with Informal Addressing Challenges</div>
+      <div class="card-sub">CRF + gazetteer fallback for landmark-centric Indian informal addresses</div>
+    </div>
+    <span class="rel-pill rp-med">Medium</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Informal address string</span><span class="farr">→</span>
+          <span class="fstep">NLP parsing (NER/CRF)</span><span class="farr">→</span>
+          <span class="fstep">Gazetteer lookup</span><span class="farr">→</span>
+          <span class="fstep">Geocoordinate output</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">CRF / NER</span>
+          <span class="tag t">Gazetteer-based lookup</span>
+          <span class="tag t">Hierarchical decomposition</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Informal Indian address strings (landmarks, local area names, mixed scripts)</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Geocoordinates (lat/lon)</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">India</span><span class="tag d">Informal Addressing</span><span class="tag d">Geocoding</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Indian informal addressing (landmark-centric, inconsistent hierarchy) — analogous to Jakarta's informal naming patterns.<br>
+      <span class="ctr">Counter:</span> NER for field extraction + gazetteer fallback for incomplete/informal components.<br>
+      <span class="gap">Thesis relevance:</span> Global South analogue for Jakarta's addressing challenges. Landmark problem mirrors Jakarta's 266 anchor-less landmark entries. Output is coordinates, not structured fields — different end task from thesis.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [10] Toponym ══ -->
+<div class="card" id="p10" data-r="high" data-m="hybrid" data-txt="toponym resolution disambiguation geoparse bert gazetteer geonames context ranking">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[10]</span>
+    <div class="card-titles">
+      <div class="card-title">Toponym Resolution and Disambiguation in Unstructured Text</div>
+      <div class="card-sub">Geoparsing with BERT NER + GeoNames gazetteer — assumes comprehensive coverage</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Unstructured text</span><span class="farr">→</span>
+          <span class="fstep">Place name NER</span><span class="farr">→</span>
+          <span class="fstep">Candidate retrieval (gazetteer)</span><span class="farr">→</span>
+          <span class="fstep">Disambiguation (context ranking)</span><span class="farr">→</span>
+          <span class="fstep">Resolved toponym + coords</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">BERT NER</span>
+          <span class="tag t">Gazetteer lookup (GeoNames)</span>
+          <span class="tag t">Context-based disambiguation</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">News articles / documents containing place name mentions</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Disambiguated place name → geocoordinates + resolved admin entity</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Geoparsing / NLP</span><span class="tag d">News / Documents</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Place name ambiguity (e.g., "Springfield" = multiple places) — requires world knowledge to resolve.<br>
+      <span class="ctr">Counter:</span> Retrieves candidates from comprehensive gazetteer (GeoNames), ranks by contextual signals.<br>
+      <span class="gap">Thesis gap:</span> <em>Assumes comprehensive gazetteer coverage</em> — fails when place names are absent from DB (the rumpang problem). AdminVerifier addresses this directly by assigning <em>Unverifiable</em> confidence state instead of forcing an incorrect resolution.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [11] PatientAddress ══ -->
+<div class="card" id="p11" data-r="med" data-m="hybrid" data-txt="patient address medical knowledge graph graphsage contrastive learning ehr clinical">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[11]</span>
+    <div class="card-titles">
+      <div class="card-title">AddrKG-LLM: Patient Address Parsing via Knowledge Graph and LLM</div>
+      <div class="card-sub">GraphSAGE KG + contrastive learning for medical address verification</div>
+    </div>
+    <span class="rel-pill rp-med">Medium</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Patient address (EHR)</span><span class="farr">→</span>
+          <span class="fstep">LLM parsing</span><span class="farr">→</span>
+          <span class="fstep">GraphSAGE KG embedding</span><span class="farr">→</span>
+          <span class="fstep">Contrastive alignment</span><span class="farr">→</span>
+          <span class="fstep">Verified structured address</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">GraphSAGE (KG embedding)</span>
+          <span class="tag m">LLM for initial parse</span>
+          <span class="tag t">Contrastive learning</span>
+          <span class="tag t">Knowledge graph grounding</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Patient address entries from EHR — abbreviated, informal</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Standardized address fields aligned to medical geographic knowledge graph</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Healthcare / EHR</span><span class="tag d">Clinical NLP</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Messy patient-entered addresses in medical records causing geocoding and care delivery failures.<br>
+      <span class="ctr">Counter:</span> Knowledge graph provides structural verification; contrastive learning aligns LLM outputs to KG entities.<br>
+      <span class="gap">Thesis relevance:</span> KG verification is conceptually analogous to AdminVerifier's deterministic grounding. Key difference: operates on a complete medical geographic DB; thesis AdminVerifier must handle structurally absent entries (rumpang). Different domain but architectural parallel is valuable.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [12] ReaGeo ══ -->
+<div class="card" id="p12" data-r="diff" data-m="llm" data-txt="reageo geocoding geohash qwen2.5 grpo reinforcement learning cot thinking coordinate beijing">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[12]</span>
+    <div class="card-titles">
+      <div class="card-title">ReaGeo: Reasoning-Enhanced Geocoding via Geohash Generation</div>
+      <div class="card-sub">Qwen2.5-3B + CoT + GRPO RL → geohash → lat/lon. NOT per-field address output.</div>
+    </div>
+    <span class="rel-pill rp-diff">Diff. Task</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Location description text</span><span class="farr">→</span>
+          <span class="fstep">CoT reasoning (&lt;thinking&gt;)</span><span class="farr">→</span>
+          <span class="fstep">Geohash sequence gen (Base32 len 9)</span><span class="farr">→</span>
+          <span class="fstep">Decoded lat/lon coords</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">Qwen2.5-3B (fine-tuned)</span>
+          <span class="tag t">CoT with &lt;thinking&gt; tags</span>
+          <span class="tag t">GRPO RL (distance-deviation reward R=(√100−√D)/1000)</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Natural language location description (239,918 Beijing samples)</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Geohash string → decoded lat/lon coordinates (~2.4m precision). NOT structured address fields.</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Geocoding (coordinates)</span><span class="tag d">Beijing (single-city)</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> End-to-end geocoding accuracy — beating commercial APIs (Baidu, Tencent Maps).<br>
+      <span class="ctr">Counter:</span> GRPO continuously penalizes distance deviation; CoT thinks before committing to geohash.<br>
+      <span class="gap">Output mismatch:</span> Outputs geocoordinates, NOT structured per-field addresses. Fundamentally incompatible with thesis's SNI 9037:2021 field schema and Four-State confidence assignment. Cited in thesis to delineate the geocoding ≠ normalization boundary.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [15] MultinationalAddress ══ -->
+<div class="card" id="p15" data-r="high" data-m="enc" data-txt="multinational address cross-lingual transfer mbert xlm country conditioned">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[15]</span>
+    <div class="card-titles">
+      <div class="card-title">Multinational Address Parsing: Cross-Country Transfer for Structured Extraction</div>
+      <div class="card-sub">mBERT/XLM-R with country-conditioned decoding across 20+ countries</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Multinational address string</span><span class="farr">→</span>
+          <span class="fstep">Multilingual encoder (mBERT/XLM-R)</span><span class="farr">→</span>
+          <span class="fstep">Country-conditioned classifier</span><span class="farr">→</span>
+          <span class="fstep">Field-level tags</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">mBERT / XLM-RoBERTa</span>
+          <span class="tag t">Cross-lingual transfer</span>
+          <span class="tag t">Country-conditioned decoding</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Address strings from 20+ countries in native language/script</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Structured address fields aligned to each country's postal schema</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Multinational</span><span class="tag d">Cross-lingual NLP</span><span class="tag d">Postal</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Each country has different address schemas — training separate models per country is intractable.<br>
+      <span class="ctr">Counter:</span> Shared multilingual encoder + country-conditioned field mapping generalizes across schemas.<br>
+      <span class="gap">Thesis relevance:</span> Covers Indonesian but does NOT handle Jakarta-specific informal fields (RT/RW, kelurahan variants, landmark references). Shows transfer learning's ceiling on low-resource locale-specific tasks — motivates full SFT on Jakarta-domain data. Field schema also incompatible with SNI 9037:2021.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [16] G2PTL ══ -->
+<div class="card" id="p16" data-r="high" data-m="hybrid" data-txt="g2ptl transformer graphormer spatial pretraining 93M address geocoding parsing">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[16]</span>
+    <div class="card-titles">
+      <div class="card-title">G2PTL: A Pre-trained Model for Address Parsing and Geocoding</div>
+      <div class="card-sub">Transformer + Graphormer spatial pretraining on 93M addresses — resource-rich upper bound</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Address string</span><span class="farr">→</span>
+          <span class="fstep">Transformer encoder</span><span class="farr">→</span>
+          <span class="fstep">Graphormer spatial attention</span><span class="farr">→</span>
+          <span class="fstep">Parsing + geocoding output</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">Transformer (BERT-style)</span>
+          <span class="tag m">Graphormer (GNN)</span>
+          <span class="tag t">Large-scale pretraining (93M)</span>
+          <span class="tag t">Spatial attention</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Address strings + spatial graph of administrative boundaries (93M Chinese addresses)</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Parsed address fields + geocoordinates; spatially-aware embeddings for downstream tasks</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">China (large-scale)</span><span class="tag d">Geocoding + Parsing</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Lack of address-specific pretraining capturing spatial adjacency between components.<br>
+      <span class="ctr">Counter:</span> Pretrains on 93M addresses with graph-structured spatial signals, establishing spatial priors for geocoding.<br>
+      <span class="gap">Thesis relevance:</span> Represents the upper bound of resource-rich approaches. Thesis demonstrates SLM + domain SFT (230K samples, no graph infrastructure) can approach this quality at a fraction of the cost — core Proof-of-Sufficiency argument.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [17] CanLLMSubstitute ══ -->
+<div class="card" id="p17" data-r="high" data-m="llm" data-txt="can llm substitute manual labeling ner annotation hierarchical address zero-shot gpt-4">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[17]</span>
+    <div class="card-titles">
+      <div class="card-title">Can LLMs Substitute Manual Labeling? Address NER Evaluation</div>
+      <div class="card-sub">GPT-4 zero-shot vs. manual annotation for hierarchical NER — answer: no</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Address string</span><span class="farr">→</span>
+          <span class="fstep">GPT-4 zero-shot prompting</span><span class="farr">→</span>
+          <span class="fstep">Structured NER labels</span><span class="farr">→</span>
+          <span class="fstep">vs. manual gold labels (eval)</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">GPT-4 (zero-shot)</span>
+          <span class="tag t">Prompt engineering</span>
+          <span class="tag t">Human annotation comparison</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Hierarchical address strings requiring fine-grained NER at kelurahan/kecamatan/kota granularity</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Per-token NER labels + quality gap analysis vs. expert annotation</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Address NER</span><span class="tag d">Data Annotation Quality</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Cost of manual annotation — can LLMs auto-label addresses for NER training data?<br>
+      <span class="ctr">Counter:</span> Systematic evaluation shows LLM zero-shot labeling quality is insufficient for hierarchical, locale-specific address structures.<br>
+      <span class="gap">Thesis relevance:</span> <em>Directly justifies domain-adapted SFT</em> over zero-shot GPT prompting for Jakarta addresses. Also supports the 230K synthetic corpus design — manual labels are needed for correct RT/RW/kelurahan hierarchies that GPT cannot reliably generate zero-shot.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [18] GeoAgent ══ -->
+<div class="card" id="p18" data-r="high" data-m="llm" data-txt="geoagent llm agent map api tool react chain-of-thought geocoding address">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[18]</span>
+    <div class="card-titles">
+      <div class="card-title">GeoAgent: LLM-Based Agent for Geospatial Address Resolution</div>
+      <div class="card-sub">LLM + map API tools (Google Maps / Baidu) in a ReAct loop for iterative verification</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Ambiguous address query</span><span class="farr">→</span>
+          <span class="fstep">LLM reasoning + tool plan</span><span class="farr">→</span>
+          <span class="fstep">Map API calls (geocode/reverse)</span><span class="farr">→</span>
+          <span class="fstep">LLM synthesis</span><span class="farr">→</span>
+          <span class="fstep">Resolved address + confidence</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">GPT-4 / LLM agent</span>
+          <span class="tag t">Tool augmentation (map APIs)</span>
+          <span class="tag t">ReAct / chain-of-thought</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Ambiguous or partial address queries in natural language</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Resolved full address + confidence score (via API validation loop)</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Geocoding / Routing</span><span class="tag d">General (API-dependent)</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Single-pass LLM address resolution fails on ambiguous queries — requires iterative verification.<br>
+      <span class="ctr">Counter:</span> LLM orchestrates tool calls to map APIs in a ReAct loop until confidence threshold is met.<br>
+      <span class="gap">Thesis relevance:</span> AdminVerifier achieves the same verification goal WITHOUT live API dependency — uses deterministic indexed lookup on local BPS/kemendagri DB. Avoids API latency, cost, and privacy risks. Also handles rumpang explicitly (API-based approaches also fail on missing DB entries).
+    </div>
+  </div>
+</div>
+
+<!-- ══ [20] Gazetteer ══ -->
+<div class="card" id="p20" data-r="high" data-m="rule" data-txt="gazetteer place name entity resolution administrative lookup fuzzy edit distance">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[20]</span>
+    <div class="card-titles">
+      <div class="card-title">Gazetteer-Based Entity Resolution for Administrative Place Names</div>
+      <div class="card-sub">Inverted index + fuzzy string matching → admin entity + hierarchy</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Place name string</span><span class="farr">→</span>
+          <span class="fstep">Gazetteer index query</span><span class="farr">→</span>
+          <span class="fstep">Fuzzy match (edit distance)</span><span class="farr">→</span>
+          <span class="fstep">Admin entity + hierarchy</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag t">Gazetteer (inverted index)</span>
+          <span class="tag t">Fuzzy matching (edit distance)</span>
+          <span class="tag t">Hierarchical lookup</span>
+          <span class="tag t">Rule-based</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Administrative place name strings (kelurahan, kecamatan, etc.)</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Resolved admin entity + parent hierarchy (kecamatan → kota → provinsi)</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Administrative Geography</span><span class="tag d">Entity Resolution</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Administrative place name variations, abbreviations, and typos preventing exact DB lookup.<br>
+      <span class="ctr">Counter:</span> Fuzzy string matching against a pre-built gazetteer with ranked candidate returns.<br>
+      <span class="gap">Thesis relevance:</span> AdminVerifier is a purpose-built Jakarta gazetteer with confidence scoring. Key distinction: thesis adds the Four-State schema (Verified/Inferred/Unverifiable/Free-form) to explicitly signal DB coverage gaps — standard gazetteers force resolution even when no match exists (silent hallucination failure).
+    </div>
+  </div>
+</div>
+
+<!-- ══ [21] ASystemforName ══ -->
+<div class="card" id="p21" data-r="med" data-m="rule" data-txt="system name address entity resolution 17 field probabilistic record linking">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[21]</span>
+    <div class="card-titles">
+      <div class="card-title">A System for Name and Address Entity Resolution</div>
+      <div class="card-sub">17-field hierarchical address parsing with probabilistic record linkage</div>
+    </div>
+    <span class="rel-pill rp-med">Medium</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Address record</span><span class="farr">→</span>
+          <span class="fstep">17-field parser</span><span class="farr">→</span>
+          <span class="fstep">Probabilistic entity matching</span><span class="farr">→</span>
+          <span class="fstep">Resolved canonical entity</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag t">Rule-based 17-field parser</span>
+          <span class="tag t">Probabilistic record linkage</span>
+          <span class="tag t">Edit distance + phonetics</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Name + address text records from databases (potentially duplicate/variant entries)</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Deduplicated, resolved 17-field address entity linked to canonical record</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Database / Record Linkage</span><span class="tag d">Entity Resolution</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Duplicate and variant address entries in large databases preventing deduplication and entity linking.<br>
+      <span class="ctr">Counter:</span> Rule-based multi-field parsing + probabilistic similarity scoring for robust entity matching.<br>
+      <span class="gap">Thesis relevance:</span> Demonstrates deterministic multi-field parsing can be highly accurate when schema is well-defined. AdminVerifier's hierarchical verification logic follows a similar pattern. However, rule-based approach cannot handle Jakarta's unstructured informal syntax — hence Stage 1 SLM is needed first.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [22] IsChatGPT ══ -->
+<div class="card" id="p22" data-r="high" data-m="enc" data-txt="is chatgpt better bilstm crf ner address parsing gpt3 comparison f1">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[22]</span>
+    <div class="card-titles">
+      <div class="card-title">Is ChatGPT a Good NLP Tool? Address NER vs. BiLSTM-CRF</div>
+      <div class="card-sub">GPT-3 vs. BiLSTM-CRF on address NER — fine-tuned encoder wins convincingly</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Address text</span><span class="farr">→</span>
+          <span class="fstep">BiLSTM-CRF (fine-tuned) vs. GPT-3 (zero/few-shot)</span><span class="farr">→</span>
+          <span class="fstep">NER labels</span><span class="farr">→</span>
+          <span class="fstep">F1 comparison</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">BiLSTM-CRF (fine-tuned winner)</span>
+          <span class="tag m">GPT-3 / ChatGPT (zero/few-shot)</span>
+          <span class="tag t">NER head comparison</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Address strings requiring token-level NER labeling</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">NER labels per token + comparative F1 scores</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Address NER</span><span class="tag d">LLM Evaluation</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> The implicit assumption that larger generative LLMs are universally better than specialized smaller models.<br>
+      <span class="ctr">Counter:</span> BiLSTM-CRF significantly outperforms GPT-3 zero/few-shot on address-specific NER tasks.<br>
+      <span class="gap">Thesis relevance:</span> <em>Core evidence for Proof-of-Sufficiency.</em> Convergent with [5] — task-specialized smaller models dominate large generative LLMs. Thesis extends this by showing QLoRA-tuned 8B SLM matches GPT-4 at fraction of cost.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [23] IntegrationofFuzzy ══ -->
+<div class="card" id="p23" data-r="high" data-m="rule" data-txt="fuzzy matching levenshtein token sort ratio bali banjar indonesian address 95 percent">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[23]</span>
+    <div class="card-titles">
+      <div class="card-title">Integration of Fuzzy Matching for Indonesian Local Address Disambiguation</div>
+      <div class="card-sub">Bali Banjar address — Levenshtein + Token Sort Ratio, 95% convergence</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">User address input</span><span class="farr">→</span>
+          <span class="fstep">Preprocessing</span><span class="farr">→</span>
+          <span class="fstep">Levenshtein distance</span><span class="farr">→</span>
+          <span class="fstep">Token Sort Ratio</span><span class="farr">→</span>
+          <span class="fstep">Top-K candidates</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag t">Levenshtein distance</span>
+          <span class="tag t">Token Sort Ratio (FuzzyWuzzy)</span>
+          <span class="tag t">No predefined gazetteer required</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">User-typed Bali Banjar name strings — typo-prone, abbreviated</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Top-matched Banjar name + similarity score (95% convergence rate)</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Indonesia (Bali)</span><span class="tag d">Local Admin Addressing</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Bali Banjar name variation and user typos — no clean gazetteer available, requires fuzzy similarity.<br>
+      <span class="ctr">Counter:</span> Combines character-level edit distance with token-order-invariant matching for robust local name lookup.<br>
+      <span class="gap">Thesis relevance:</span> Indonesian locale, closest in spirit to AdminVerifier's fuzzy component. Key differences: (1) Bali Banjar has no RT/RW hierarchy (simpler), (2) no rumpang problem (all Banjar names are known), (3) fuzzy-only scales poorly to Jakarta's 267 kelurahan + complex hierarchy. AdminVerifier adds Four-State confidence for cases where fuzzy fails.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [24] GeoSpatiallyInformed ══ -->
+<div class="card" id="p24" data-r="med" data-m="hybrid" data-txt="geospatially informed embeddings spatial geographic address nlp coordinates bert contrastive">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[24]</span>
+    <div class="card-titles">
+      <div class="card-title">Geospatially Informed Address Embeddings for Downstream NLP Tasks</div>
+      <div class="card-sub">BERT + coordinate injection → spatially-aware address representations</div>
+    </div>
+    <span class="rel-pill rp-med">Medium</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Address string + geocoords</span><span class="farr">→</span>
+          <span class="fstep">Joint encoding (text + spatial)</span><span class="farr">→</span>
+          <span class="fstep">Spatial-aware embedding</span><span class="farr">→</span>
+          <span class="fstep">Downstream task</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">BERT + spatial embedding fusion</span>
+          <span class="tag t">Coordinate injection / location2vec</span>
+          <span class="tag t">Contrastive pretraining</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Address text + associated geocoordinates (lat/lon)</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Geospatially-enriched address embeddings for classification, matching, or retrieval</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Geospatial NLP</span><span class="tag d">Address Embeddings</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Text-only embeddings miss geographic proximity signals — two textually different addresses can be spatially adjacent.<br>
+      <span class="ctr">Counter:</span> Fuses coordinate signals with textual representations for richer address understanding.<br>
+      <span class="gap">Thesis relevance:</span> Peripheral relevance — thesis operates in text-to-structured-text domain without coordinate augmentation. Potential future extension for improving AdminVerifier's fuzzy lookup using spatial adjacency priors.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [25] MitigatingGeospatial ══ -->
+<div class="card" id="p25" data-r="high" data-m="llm" data-txt="mitigating geospatial hallucination KTO alignment factuality kahneman tversky">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[25]</span>
+    <div class="card-titles">
+      <div class="card-title">Mitigating Geospatial Hallucination in LLMs via KTO Alignment</div>
+      <div class="card-sub">Kahneman-Tversky Optimization for geographic factuality — same hallucination problem as rumpang</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Address / location query</span><span class="farr">→</span>
+          <span class="fstep">LLM generation</span><span class="farr">→</span>
+          <span class="fstep">KTO alignment (factuality reward)</span><span class="farr">→</span>
+          <span class="fstep">Factuality-aligned output</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">LLM + KTO alignment</span>
+          <span class="tag t">Kahneman-Tversky Optimization</span>
+          <span class="tag t">Preference-free RLHF variant</span>
+          <span class="tag t">Geographic factuality reward</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Geographic/location queries where LLM tends to hallucinate place names or coordinates</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Factually grounded geographic responses with reduced hallucination rate</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Geospatial QA</span><span class="tag d">LLM Alignment</span><span class="tag d">Hallucination Mitigation</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> LLMs confidently hallucinate place names, coordinates, and admin hierarchies — identical failure mode to the rumpang problem in the thesis.<br>
+      <span class="ctr">Counter:</span> KTO alignment penalizes geospatially incorrect outputs during training, incentivizing factual restraint.<br>
+      <span class="gap">Thesis relevance:</span> Addresses the same core failure mode (geospatial hallucination). Thesis's solution is simpler and more interpretable: post-hoc deterministic AdminVerifier + null-honesty principle (set unverifiable fields to None) instead of training-time KTO.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [26] CoordinatesfromContext ══ -->
+<div class="card" id="p26" data-r="diff" data-m="llm" data-txt="coordinates from context small llm fine-tuned 8b 14b geocoding proof sufficiency sft">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[26]</span>
+    <div class="card-titles">
+      <div class="card-title">Extracting Coordinates from Context: Task-Fine-Tuned Small LLMs</div>
+      <div class="card-sub">8B–14B task-tuned SLMs match GPT-4 on coordinate extraction — key Proof-of-Sufficiency evidence</div>
+    </div>
+    <span class="rel-pill rp-diff">Diff. Task</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Contextual text (with location)</span><span class="farr">→</span>
+          <span class="fstep">Task-fine-tuned SLM (8B–14B)</span><span class="farr">→</span>
+          <span class="fstep">Lat/lon coordinate extraction</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">Llama / Mistral (8B–14B)</span>
+          <span class="tag t">Task-specific SFT</span>
+          <span class="tag t">Comparison vs. GPT-4</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Natural language passages containing geographic location descriptions</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Latitude/longitude coordinate pairs (NOT structured address fields)</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Geocoordinate Extraction</span><span class="tag d">Document NLP</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> The assumption that only large frontier LLMs (GPT-4+) can perform complex geospatial NLP tasks.<br>
+      <span class="ctr">Counter:</span> Task-fine-tuned 8B–14B SLMs match GPT-4 after domain-specific SFT.<br>
+      <span class="gap">Output mismatch + thesis relevance:</span> Output is coordinates, not per-field addresses — different task. BUT the core finding (SFT SLM ≈ GPT-4 quality) is the <em>strongest single piece of evidence</em> for the thesis's Proof-of-Sufficiency claim justifying QLoRA Llama-3.1-8B over GPT-4 API calls.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [27] SLOT ══ -->
+<div class="card" id="p27" data-r="high" data-m="llm" data-txt="SLOT schema constrained structured output mistral xgrammar json post-processing model agnostic lora">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[27]</span>
+    <div class="card-titles">
+      <div class="card-title">SLOT: Structured LLM Output via Post-Processing Fine-Tuning</div>
+      <div class="card-sub">Model-agnostic schema correction — Mistral-7B + XGrammar → 99.5% schema accuracy</div>
+    </div>
+    <span class="rel-pill rp-high">High</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Any LLM free-form output</span><span class="farr">→</span>
+          <span class="fstep">SLOT (fine-tuned Mistral-7B)</span><span class="farr">→</span>
+          <span class="fstep">XGrammar constrained decoding</span><span class="farr">→</span>
+          <span class="fstep">Schema-compliant JSON</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">Mistral-7B SFT (LoRA r=32 α=64)</span>
+          <span class="tag t">XGrammar constrained decoding</span>
+          <span class="tag t">Model-agnostic post-processing</span>
+          <span class="tag t">126K synthetic training examples</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Free-form LLM generation output (any upstream model) + target JSON schema spec</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Schema-compliant JSON — 99.5% schema accuracy, 94.0% content similarity (SBERT soft-F1)</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">Structured Generation</span><span class="tag d">NLG → JSON</span><span class="tag d">Task-agnostic</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> LLM outputs that violate JSON schema (wrong field names, missing fields, type mismatches, nested hallucinations).<br>
+      <span class="ctr">Counter:</span> Decouples formatting from generation — upstream LLM focuses on content, SLOT enforces schema via constrained decoding. Works on ANY upstream model.<br>
+      <span class="gap">Thesis relevance:</span> <em>Structural complement to AdminVerifier.</em> SLOT enforces schema compliance (format); AdminVerifier enforces semantic validity (field values against BPS DB). Thesis Stage 2 is architecturally more constrained — deterministic indexed lookup, NOT another fine-tuned LLM.
+    </div>
+  </div>
+</div>
+
+<!-- ══ [28] TowardBuilding ══ -->
+<div class="card" id="p28" data-r="med" data-m="hybrid" data-txt="toward building address normalization pipeline parsing verification canonicalization system design">
+  <div class="card-hdr" onclick="toggle(this)">
+    <span class="ref-tag">[28]</span>
+    <div class="card-titles">
+      <div class="card-title">Toward Building a Robust Address Normalization Pipeline</div>
+      <div class="card-sub">End-to-end pipeline design: parsing → verification → canonicalization</div>
+    </div>
+    <span class="rel-pill rp-med">Medium</span>
+    <span class="toggle-icon">▶</span>
+  </div>
+  <div class="card-body">
+    <div class="rows">
+      <div>
+        <div class="row-lbl">System Flow</div>
+        <div class="flow">
+          <span class="fstep">Raw address</span><span class="farr">→</span>
+          <span class="fstep">Parsing (NER/CRF)</span><span class="farr">→</span>
+          <span class="fstep">Verification (DB lookup)</span><span class="farr">→</span>
+          <span class="fstep">Canonicalization</span><span class="farr">→</span>
+          <span class="fstep">Normalized address</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Model / Method</div>
+        <div class="tags">
+          <span class="tag m">NER (BERT or CRF)</span>
+          <span class="tag t">Multi-stage pipeline</span>
+          <span class="tag t">DB verification</span>
+          <span class="tag t">Rule-based canonicalization</span>
+        </div>
+      </div>
+      <div>
+        <div class="row-lbl">Input</div>
+        <div class="row-val">Raw, unstructured address strings from user input or legacy databases</div>
+      </div>
+      <div>
+        <div class="row-lbl">Output</div>
+        <div class="row-val">Canonicalized, verified address records in standard schema format</div>
+      </div>
+      <div class="row-full">
+        <div class="row-lbl">Domain</div>
+        <div class="tags"><span class="tag d">General / Postal</span><span class="tag d">System Architecture</span></div>
+      </div>
+    </div>
+    <div class="rel-block">
+      <span class="atk">Attacks:</span> Fragmented approaches handling parsing, verification, and canonicalization separately.<br>
+      <span class="ctr">Counter:</span> Proposes integrated end-to-end multi-stage pipeline as a coherent system.<br>
+      <span class="gap">Thesis relevance:</span> Thesis's two-stage pipeline (Stage 1: QLoRA SLM → Stage 2: AdminVerifier) directly follows this paradigm. Thesis adds: (a) generative LLM for parsing vs. NER, (b) Four-State confidence schema vs. binary pass/fail, (c) null-honesty for rumpang, (d) Jakarta-specific fields per SNI 9037:2021.
+    </div>
+  </div>
+</div>
+
+</main>
+</div><!-- layout -->
+
+<script>
+// ── State ──────────────────────────────────────────────
+let relFilter    = 'all';
+let methodFilter = 'all';
+
+// ── Toggle card open/close ─────────────────────────────
+function toggle(hdr) {
+  hdr.parentElement.classList.toggle('open');
+}
+
+// ── Sidebar active highlight ───────────────────────────
+function activeSb(el) {
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Intersection observer → highlight sidebar on scroll
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      document.querySelectorAll('.sb-item').forEach(i => {
+        i.classList.toggle('active', i.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { threshold: 0.3, rootMargin: '-54px 0px 0px 0px' });
+
+document.querySelectorAll('.card[id]').forEach(c => obs.observe(c));
+
+// ── Filters ────────────────────────────────────────────
+function setFilter(type, val, btn) {
+  if (type === 'rel') {
+    relFilter = val;
+    document.querySelectorAll('#relFilters .fbtn').forEach(b => b.classList.remove('on'));
+  } else {
+    methodFilter = val;
+    document.querySelectorAll('#methodFilters .fbtn').forEach(b => b.classList.remove('on'));
+  }
+  btn.classList.add('on');
+  applyFilters();
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchBox').value.toLowerCase().trim();
+  let vis = 0;
+
+  document.querySelectorAll('.card').forEach(card => {
+    const r = card.dataset.r;
+    const m = card.dataset.m;
+    const txt = (card.dataset.txt + ' ' + card.innerText).toLowerCase();
+
+    const relOk    = relFilter    === 'all' || r === relFilter;
+    const methodOk = methodFilter === 'all' || m === methodFilter;
+    const searchOk = !q || txt.includes(q);
+
+    const show = relOk && methodOk && searchOk;
+    card.classList.toggle('hidden', !show);
+    if (show) vis++;
+  });
+
+  // Sync sidebar
+  document.querySelectorAll('.sb-item').forEach(item => {
+    const href = item.getAttribute('href').slice(1);
+    const card = document.getElementById(href);
+    item.classList.toggle('hidden-paper', card ? card.classList.contains('hidden') : false);
+  });
+
+  document.getElementById('vc').textContent = vis;
+}
+</script>
+</body>
+</html>

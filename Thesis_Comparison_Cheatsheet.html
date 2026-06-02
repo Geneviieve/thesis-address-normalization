@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Thesis Comparison Cheatsheet</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 1200px; margin: 20px auto; padding: 20px; }
+        h1 { border-bottom: 2px solid #333; padding-bottom: 10px; }
+        h2 { margin-top: 40px; background: #f0f0f0; padding: 10px; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #999; padding: 12px; text-align: left; }
+        th { background: #333; color: white; }
+        tr:nth-child(even) { background: #f9f9f9; }
+        .threat { font-weight: bold; padding: 3px 8px; border-radius: 3px; }
+        .critical { background: #ff6b6b; color: white; }
+        .high { background: #ffa500; color: white; }
+        .moderate { background: #ffeb3b; }
+        .box { background: #f5f5f5; border-left: 4px solid #333; padding: 15px; margin: 15px 0; }
+        .defense { background: #ffffcc; border-left: 4px solid #ffcc00; padding: 15px; margin: 15px 0; }
+        strong { color: #333; }
+        ul { margin: 10px 0; padding-left: 20px; }
+        li { margin: 5px 0; }
+    </style>
+</head>
+<body>
+
+<h1>THESIS COMPARISON CHEATSHEET</h1>
+<p><strong>Address Normalization for Jakarta using SLM</strong> - Quick reference untuk konsultasi</p>
+
+<hr>
+
+<h2>YOUR THESIS AT A GLANCE</h2>
+<table>
+    <tr>
+        <td><strong>Stage 1 (Extraction)</strong></td>
+        <td>QLoRA Llama-3.1-8B SFT → 12-field JSON</td>
+    </tr>
+    <tr>
+        <td><strong>Stage 2 (Verification)</strong></td>
+        <td>AdminVerifier deterministic lookup → 4-state confidence</td>
+    </tr>
+    <tr>
+        <td><strong>Key Feature</strong></td>
+        <td>Null-honesty: Output "Unverifiable" for missing data (30% kelurahan null, 34% kodepos null)</td>
+    </tr>
+    <tr>
+        <td><strong>Output Format</strong></td>
+        <td>{value, state: Verified | Inferred | Unverifiable | Free-form}</td>
+    </tr>
+</table>
+
+<hr>
+
+<h2>1. ADDRLLM - SFT + Vector RAG</h2>
+<p><strong class="threat critical">THREAT: CRITICAL</strong></p>
+
+<table>
+    <tr><th colspan="2">Comparison</th></tr>
+    <tr>
+        <td><strong>Their Data Size</strong></td>
+        <td>60M (real JD Logistics DB) + 200M retriever fine-tuning</td>
+    </tr>
+    <tr>
+        <td><strong>Your Data Size</strong></td>
+        <td>230k synthetic (rule-based gaps + external LLM)</td>
+    </tr>
+    <tr>
+        <td><strong>Their Retrieval</strong></td>
+        <td>Vector RAG (cosine similarity) → probabilistic, can retrieve wrong context</td>
+    </tr>
+    <tr>
+        <td><strong>Your Retrieval</strong></td>
+        <td>Deterministic exact match → if field in DB, guaranteed found</td>
+    </tr>
+    <tr>
+        <td><strong>Their Output</strong></td>
+        <td>Free-text rewritten address</td>
+    </tr>
+    <tr>
+        <td><strong>Your Output</strong></td>
+        <td>12-field JSON + confidence state</td>
+    </tr>
+    <tr>
+        <td><strong>Their Scope</strong></td>
+        <td>Nationwide China (100M+ addresses, unknown patterns)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Scope</strong></td>
+        <td>Jakarta only (fixed hierarchy, data rumpang modeled)</td>
+    </tr>
+</table>
+
+<div class="defense">
+    <strong>DEFENSE IF ASKED:</strong><br>
+    "AddrLLM chose RAG for nationwide scale with diverse patterns. My thesis chose deterministic grounding because Jakarta has known data gaps (30% null). RAG can retrieve wrong context if ambiguous; my AdminVerifier either finds exact match or reports Unverifiable. Plus, my 4-state confidence schema explicitly communicates data reliability—AddrLLM doesn't."
+</div>
+
+<hr>
+
+<h2>2. ADDRKG-LLM - KG Retrieval + Constrained LLM</h2>
+<p><strong class="threat critical">THREAT: CRITICAL</strong></p>
+
+<table>
+    <tr><th colspan="2">Comparison</th></tr>
+    <tr>
+        <td><strong>Their Pipeline</strong></td>
+        <td>Knowledge Graph + contrastive learning → Top-K retrieval → constrained LLM decoding</td>
+    </tr>
+    <tr>
+        <td><strong>Your Pipeline</strong></td>
+        <td>SLM extraction → deterministic indexed lookup → confidence state</td>
+    </tr>
+    <tr>
+        <td><strong>Their Retrieval Failure</strong></td>
+        <td>If gold entry not in Top-K, cannot recover (high risk)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Retrieval Failure</strong></td>
+        <td>Zero risk (exact match or Unverifiable)</td>
+    </tr>
+    <tr>
+        <td><strong>Their Incomplete DB</strong></td>
+        <td>Not modeled (assumes KG complete)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Incomplete DB</strong></td>
+        <td>Explicit design constraint (30% null, 34% null known and handled)</td>
+    </tr>
+    <tr>
+        <td><strong>Their Confidence</strong></td>
+        <td>Binary accuracy metrics (Amicro, Amacro, Recall@K)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Confidence</strong></td>
+        <td>4-state per field (first-class output)</td>
+    </tr>
+</table>
+
+<div class="defense">
+    <strong>DEFENSE IF ASKED:</strong><br>
+    "AddrKG-LLM probabilistic Top-K retrieval means if gold entry doesn't rank in Top-K, system fails silently. My deterministic lookup: either found or explicitly rejected with Unverifiable. Most importantly, they don't model incomplete reference data; I do. My 4-state confidence is orthogonal contribution—they report accuracy metrics; I report epistemic state per field."
+</div>
+
+<hr>
+
+<h2>3. GEOAGENT - Agentic LLM + External APIs</h2>
+<p><strong class="threat high">THREAT: HIGH</strong></p>
+
+<table>
+    <tr><th colspan="2">Comparison</th></tr>
+    <tr>
+        <td><strong>Their Approach</strong></td>
+        <td>Multi-turn agentic reasoning + dynamic tool calls (geocoding, POI search APIs)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Approach</strong></td>
+        <td>Two-stage deterministic pipeline (SLM + indexed lookup)</td>
+    </tr>
+    <tr>
+        <td><strong>Their Latency</strong></td>
+        <td>High (multiple API calls)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Latency</strong></td>
+        <td>Low (indexed lookup)</td>
+    </tr>
+    <tr>
+        <td><strong>Their Privacy</strong></td>
+        <td>Low (addresses sent to external APIs)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Privacy</strong></td>
+        <td>High (local computation only)</td>
+    </tr>
+    <tr>
+        <td><strong>Their Debuggability</strong></td>
+        <td>Low (multi-turn state hard to trace)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Debuggability</strong></td>
+        <td>High (clear separation: SLM error vs AdminVerifier rejection)</td>
+    </tr>
+</table>
+
+<div class="defense">
+    <strong>DEFENSE IF ASKED:</strong><br>
+    "GeoAgent optimizes for flexibility (handle diverse descriptions) and external scale. My thesis optimizes for offline capability, privacy, and transparency. They need API calls for each inference; I use local indexed lookup. For Jakarta context, local + transparent is better fit."
+</div>
+
+<hr>
+
+<h2>4. SLOT - Schema Correction Post-Processor</h2>
+<p><strong class="threat high">THREAT: HIGH</strong></p>
+
+<table>
+    <tr><th colspan="2">Comparison</th></tr>
+    <tr>
+        <td><strong>What They Do</strong></td>
+        <td>Fix malformed JSON (wrong brackets, invalid keys) → 99.5% schema accuracy</td>
+    </tr>
+    <tr>
+        <td><strong>What You Do</strong></td>
+        <td>Verify field VALUES are correct per authoritative DB → semantic grounding</td>
+    </tr>
+    <tr>
+        <td><strong>Example</strong></td>
+        <td>SLOT: {"kelurahan": "Gambir", "kecamatan": "Penjaringan"} → valid JSON ✓<br>
+        AdminVerifier: But is Gambir in Penjaringan? NO → ERROR</td>
+    </tr>
+    <tr>
+        <td><strong>Their Layer</strong></td>
+        <td>Layer 0 (structural: format correct)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Layer</strong></td>
+        <td>Layer 1 (semantic: content correct)</td>
+    </tr>
+</table>
+
+<div class="defense">
+    <strong>DEFENSE IF ASKED:</strong><br>
+    "SLOT ensures valid JSON structure. AdminVerifier ensures field values are factually correct per Jakarta DB. Complementary, not competing. SLOT = 'is this valid JSON?', AdminVerifier = 'is this fact true?'. Different problems."
+</div>
+
+<hr>
+
+<h2>5. GEOINDIA - QLoRA Llama for Geohash Prediction</h2>
+<p><strong class="threat moderate">THREAT: MODERATE</strong></p>
+
+<table>
+    <tr><th colspan="2">Comparison</th></tr>
+    <tr>
+        <td><strong>Their Task</strong></td>
+        <td>Address → H3 hexagonal geohash (geographic coordinates)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Task</strong></td>
+        <td>Address → administrative JSON (Kelurahan, Kecamatan, RT, RW, Kodepos)</td>
+    </tr>
+    <tr>
+        <td><strong>Their Output</strong></td>
+        <td>Geographic location on map (WHERE)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Output</strong></td>
+        <td>Administrative identity + confidence (WHAT + HOW SURE)</td>
+    </tr>
+    <tr>
+        <td><strong>Their Verification</strong></td>
+        <td>None (direct prediction)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Verification</strong></td>
+        <td>AdminVerifier grounds to Jakarta DB</td>
+    </tr>
+    <tr>
+        <td><strong>Their Scope</strong></td>
+        <td>All-India, 29 per-state models (language diversity)</td>
+    </tr>
+    <tr>
+        <td><strong>Your Scope</strong></td>
+        <td>Jakarta only, RT/RW hierarchy (Indonesian-specific)</td>
+    </tr>
+</table>
+
+<div class="defense">
+    <strong>DEFENSE IF ASKED:</strong><br>
+    "GeoIndia geocodes (WHERE is this?), I normalize (WHAT is this administratively?). Different tasks, different outputs. GeoIndia no verification; I verify every field. Plus, I handle Jakarta-specific RT/RW layer that doesn't exist in Indian context."
+</div>
+
+<hr>
+
+<h2>YOUR 8 NOVELTY CLAIMS</h2>
+
+<div class="box">
+    <strong>N1: Two-Error-Mode Framework</strong><br>
+    Syntactic extraction errors (noisy input) vs semantic verification errors (data rumpang)
+    <br><br>
+    <strong>N2: Deterministic Admin Grounding</strong><br>
+    Post-hoc indexed lookup (not RAG, not retrieval). No hallucination risk.
+    <br><br>
+    <strong>N3: 4-State Confidence Schema</strong><br>
+    {Verified, Inferred, Unverifiable, Free-form} as first-class output
+    <br><br>
+    <strong>N4: Null-Honesty Principle</strong><br>
+    System explicitly reports missing data. Operationalized in training (frozen template) + inference (Unverifiable state)
+    <br><br>
+    <strong>N5: Data Rumpang as Design Constraint</strong><br>
+    30% kelurahan null, 34% kodepos null. Not hidden limitation; core architectural feature.
+    <br><br>
+    <strong>N6: Hybrid Synthetic Corpus</strong><br>
+    Rule-based admin gap injection + external LLM (syntactic noise only). 230k engineered per two-error-mode taxonomy.
+    <br><br>
+    <strong>N7: Proof of Sufficiency</strong><br>
+    8B SLM + deterministic grounding achieves competitive performance at 1000x lower cost than large LLMs
+    <br><br>
+    <strong>N8: Indonesian-Specific</strong><br>
+    Jakarta RT/RW + SNI 9037:2021 + Pergub-derived data. Unique to Indonesian governance context.
+</div>
+
+<hr>
+
+<h2>THE UNIQUE COMBINATION ARGUMENT</h2>
+
+<div class="box">
+    <strong>No competitor has ALL 8 of these together:</strong><br>
+    ✓ Domain-adapted SLM (QLoRA Llama)<br>
+    ✓ + Deterministic post-hoc grounding (not RAG)<br>
+    ✓ + Explicit null-honesty (Unverifiable state)<br>
+    ✓ + 4-state per-field confidence<br>
+    ✓ + Data rumpang as design constraint<br>
+    ✓ + Indonesian-specific RT/RW + SNI<br>
+    ✓ + Two-error-mode corpus engineering<br>
+    <br>
+    Each piece exists elsewhere. The combination is yours.
+</div>
+
+<hr>
+
+<h2>IF DOSEN ASKS... (QUICK ANSWERS)</h2>
+
+<table>
+    <tr>
+        <th>Question</th>
+        <th>Answer</th>
+    </tr>
+    <tr>
+        <td><strong>Bedanya sama AddrLLM?</strong></td>
+        <td>They nationwide + flexible (RAG), I Jakarta-specific + transparent (deterministic). Both valid. I handle data rumpang explicitly; they don't.</td>
+    </tr>
+    <tr>
+        <td><strong>Kenapa gak pakai RAG?</strong></td>
+        <td>RAG probabilistic (retrieval can fail). I deterministic (exact match or reject). For incomplete data, deterministic better. Plus, 4-state confidence gives epistemic signal.</td>
+    </tr>
+    <tr>
+        <td><strong>AdminVerifier cuma lookup aja?</strong></td>
+        <td>Yes, deterministic lookup. Tapi "jujur" (Unverifiable state). Other systems would hallucinate. Honesty is feature, not limitation.</td>
+    </tr>
+    <tr>
+        <td><strong>Kontribusi apa yang genuinely novel?</strong></td>
+        <td>Combination of: null-honesty principle + 4-state confidence + data rumpang as core design + two-error-mode framework. Not single component, but system design.</td>
+    </tr>
+    <tr>
+        <td><strong>Proof of Sufficiency kamu apa?</strong></td>
+        <td>If 8B SLM + AdminVerifier accuracy within 5-10% of GPT-4 at 1000x lower cost, that proves small model sufficient for this task in developing-country context.</td>
+    </tr>
+    <tr>
+        <td><strong>Data 230k itu bagus kah?</strong></td>
+        <td>Synthetic tapi engineered. Rule-based gaps (realistic) + external LLM (syntactic noise). Quality > quantity. Better than random synthetic.</td>
+    </tr>
+</table>
+
+<hr>
+
+<h2>TALKING POINTS (USE THESE IN CONSULTATION)</h2>
+
+<div class="defense">
+    1. "Data rumpang bukan limitation kami, tapi design constraint yang kami model explicitly. Competitors assume complete reference data; I model incomplete."
+    <br><br>
+    2. "Null-honesty operationalized di dua tempat: training (frozen template force 'use null' 184k times) dan inference (AdminVerifier output Unverifiable). Ini architectural choice."
+    <br><br>
+    3. "Two-stage pipeline memungkinkan clear error attribution. Bisa trace: ini error dari SLM? Atau rejected by AdminVerifier? Integrated approaches (AddrLLM, RAG) harder to debug."
+    <br><br>
+    4. "4-state confidence bukan post-metric, tapi first-class output. Tells user: 'this field verified', 'this field missing from DB', dll. User-facing epistemic signal."
+    <br><br>
+    5. "Deterministic = transparent. Kalau hasil 'Verified Gambir', bisa bilang 'exact match di full2.csv baris XYZ'. Kalau 'Unverifiable', 'not in DB'. Traceability tinggi."
+    <br><br>
+    6. "Proof of Sufficiency penting untuk Indonesia context. If small model cukup, SME logistics company bisa pakai without renting GPU/cloud. Cost-benefit untuk adoption."
+</div>
+
+</body>
+</html>

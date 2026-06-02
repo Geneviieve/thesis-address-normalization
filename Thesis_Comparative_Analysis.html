@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thesis Comparative Analysis: Methodology & Novelty Defense</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+
+        .threat-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin: 5px 0;
+        }
+
+        .threat-critical {
+            background: #ff4444;
+            color: white;
+        }
+
+        .threat-high {
+            background: #ff9900;
+            color: white;
+        }
+
+        .threat-moderate {
+            background: #ffcc00;
+            color: #333;
+        }
+
+        .paper-section {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 25px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .paper-title {
+            font-size: 1.6em;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .paper-authors {
+            color: #666;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .grid-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .grid-item h4 {
+            color: #667eea;
+            margin-bottom: 12px;
+            font-size: 1.1em;
+        }
+
+        .grid-item ul, .grid-item ol {
+            margin-left: 20px;
+        }
+
+        .grid-item li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #764ba2;
+        }
+
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .column-dimas {
+            background: #e8f4f8;
+            font-weight: 500;
+            color: #0066cc;
+        }
+
+        .column-competitor {
+            background: #fff4e6;
+            color: #cc6600;
+        }
+
+        .novelty-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .novelty-box h4 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .defense-box {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .defense-box h4 {
+            color: #e65100;
+            margin-bottom: 10px;
+        }
+
+        .threat-analysis {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .threat-analysis h4 {
+            color: #c62828;
+            margin-bottom: 10px;
+        }
+
+        .methodology-why {
+            background: #f3e5f5;
+            border-left: 4px solid #9c27b0;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+
+        .key-difference {
+            background: #e0f2f1;
+            border-left: 4px solid #00897b;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-size: 0.95em;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+
+        .summary-box h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .summary-box ul {
+            margin-left: 20px;
+        }
+
+        .summary-box li {
+            margin-bottom: 10px;
+        }
+
+        .toc {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+
+        .toc h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .toc a {
+            display: block;
+            color: #667eea;
+            text-decoration: none;
+            padding: 8px 0;
+            padding-left: 20px;
+            border-left: 2px solid transparent;
+        }
+
+        .toc a:hover {
+            border-left: 2px solid #667eea;
+            color: #764ba2;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .emoji {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="emoji">🎓</span> Thesis Comparative Analysis</h1>
+            <p class="subtitle">Address Normalization for Jakarta using Small Language Models</p>
+            <p style="margin-top: 15px; color: #667eea; font-weight: 600;">Methodology Choices, Novelty Positioning & Defense Arguments</p>
+        </header>
+
+        <div class="toc">
+            <h3>📋 Quick Navigation</h3>
+            <a href="#overview">Overview: Your Thesis vs Competitors</a>
+            <a href="#addrllm">1. AddrLLM (CRITICAL THREAT)</a>
+            <a href="#addrkg">2. AddrKG-LLM (CRITICAL THREAT)</a>
+            <a href="#geoagent">3. GeoAgent (HIGH THREAT)</a>
+            <a href="#slot">4. SLOT (HIGH THREAT)</a>
+            <a href="#geoindia">5. GeoIndia (MODERATE THREAT)</a>
+            <a href="#summary">Summary & Novelty Defense</a>
+        </div>
+
+        <!-- OVERVIEW SECTION -->
+        <section id="overview" class="paper-section">
+            <h2 style="color: #667eea; margin-bottom: 20px;">📊 Overview: Your Thesis vs Competitors</h2>
+
+            <h3 style="color: #333; margin: 20px 0 15px 0;">Your Thesis Architecture</h3>
+            <table class="comparison-table">
+                <tr>
+                    <th style="width: 30%;">Component</th>
+                    <th style="width: 70%;">Your Approach</th>
+                </tr>
+                <tr>
+                    <td><strong>Stage 1: Extraction</strong></td>
+                    <td class="column-dimas">QLoRA Llama-3.1-8B SFT (230k synthetic data) → 12-field JSON</td>
+                </tr>
+                <tr>
+                    <td><strong>Stage 2: Verification</strong></td>
+                    <td class="column-dimas">Deterministic AdminVerifier (indexed lookup) → 4-state confidence schema</td>
+                </tr>
+                <tr>
+                    <td><strong>Data Handling</strong></td>
+                    <td class="column-dimas">Explicit null-honesty: Unverifiable state for missing data (30% kelurahan null, 34% kodepos null)</td>
+                </tr>
+                <tr>
+                    <td><strong>Output</strong></td>
+                    <td class="column-dimas">{value, state: Verified|Inferred|Unverifiable|Free-form}</td>
+                </tr>
+                <tr>
+                    <td><strong>Hallucination Risk</strong></td>
+                    <td class="column-dimas">Minimal (deterministic grounding, no LLM gap-filling)</td>
+                </tr>
+            </table>
+        </section>
+
+        <!-- ADDRLLM SECTION -->
+        <section id="addrllm" class="paper-section">
+            <div class="paper-title">
+                <div>
+                    <h3>🚨 AddrLLM: Address Rewriting via LLM on Nationwide Logistics Data</h3>
+                    <p class="paper-authors">Yang et al. (2024) | arXiv:2411.13584 | JD Logistics & Rutgers</p>
+                </div>
+                <span class="threat-badge threat-critical"><span class="emoji">⚠️</span> CRITICAL THREAT</span>
+            </div>
+
+            <div class="section-grid">
+                <div class="grid-item">
+                    <h4>Their Methodology</h4>
+                    <ul>
+                        <li><strong>Stage 1:</strong> SFT with multi-instruction training (60M total)</li>
+                        <li>Address Parsing: 20M pairs</li>
+                        <li>Address Entity Prediction: 20M pairs</li>
+                        <li>Address Rewriting: 20M pairs</li>
+                        <li><strong>Stage 2:</strong> Vector RAG retrieval (200M geocoding data)</li>
+                        <li><strong>Stage 3:</strong> Bias-free alignment (4M package delivery data)</li>
+                        <li><strong>Output:</strong> Rewritten address string (free-text)</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Why They Chose This</h4>
+                    <div class="methodology-why">
+                        <strong>Problem Context:</strong> Nationwide deployment (JD Logistics, 100M+ addresses, 25k rerouting events/day)
+                    </div>
+                    <ul>
+                        <li><strong>Scale:</strong> 100M+ addresses → vector retrieval more scalable than exact match</li>
+                        <li><strong>Diversity:</strong> Nationwide China → regional diversity → RAG retrieve similar patterns</li>
+                        <li><strong>Flexibility:</strong> New addresses without retraining LLM (just re-embed)</li>
+                        <li><strong>Unknown patterns:</strong> LLM can generate plausible rewrites for unseen formats</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h4 style="color: #667eea; margin-top: 20px;">Side-by-Side Comparison</h4>
+            <table class="comparison-table">
+                <tr>
+                    <th>Dimension</th>
+                    <th class="column-dimas">Your Thesis</th>
+                    <th class="column-competitor">AddrLLM</th>
+                </tr>
+                <tr>
+                    <td><strong>Training Data Size</strong></td>
+                    <td class="column-dimas">230k (synthetic)</td>
+                    <td class="column-competitor">60M (real JD LBS system)</td>
+                </tr>
+                <tr>
+                    <td><strong>Scope</strong></td>
+                    <td class="column-dimas">Jakarta only (single region)</td>
+                    <td class="column-competitor">Nationwide China</td>
+                </tr>
+                <tr>
+                    <td><strong>Retrieval Type</strong></td>
+                    <td class="column-dimas">Deterministic indexed lookup (AdminVerifier)</td>
+                    <td class="column-competitor">Probabilistic vector RAG (cosine similarity)</td>
+                </tr>
+                <tr>
+                    <td><strong>Output Format</strong></td>
+                    <td class="column-dimas">12-field JSON with 4-state confidence</td>
+                    <td class="column-competitor">Free-text rewritten address</td>
+                </tr>
+                <tr>
+                    <td><strong>Incomplete Data Handling</strong></td>
+                    <td class="column-dimas">Explicit (Unverifiable state)</td>
+                    <td class="column-competitor">Implicit (LLM might hallucinate)</td>
+                </tr>
+                <tr>
+                    <td><strong>Hallucination Risk</strong></td>
+                    <td class="column-dimas">Minimal (post-hoc deterministic)</td>
+                    <td class="column-competitor">Moderate (LLM generation + RAG ambiguity)</td>
+                </tr>
+            </table>
+
+            <div class="threat-analysis">
+                <h4><span class="emoji">⚠️</span> Why AddrLLM Is a Threat</h4>
+                <ul>
+                    <li><strong>Same Problem Framing:</strong> "SFT LLM + retrieval module" for address normalization in logistics</li>
+                    <li><strong>Similar Pipeline:</strong> Two-stage (extraction → retrieval/verification)</li>
+                    <li><strong>Scale & Results:</strong> 43% improvement on real production data → impressive practical impact</li>
+                    <li><strong>Examiner Risk:</strong> Dosen might ask: "Isn't this just a smaller, less sophisticated version of AddrLLM?"</li>
+                </ul>
+            </div>
+
+            <div class="defense-box">
+                <h4><span class="emoji">🛡️</span> How to Defend Against This Threat</h4>
+                <p><strong>Key Argument:</strong> Different architectural choices for different constraints.</p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Deterministic vs Probabilistic:</strong> AddrLLM uses cosine similarity retrieval (can retrieve wrong context if ambiguous). Your AdminVerifier is exact match—if field exists in DB, it WILL be found (no retrieval failure risk).</li>
+                    <li><strong>Data Rumpang Modeling:</strong> AddrLLM doesn't model incomplete reference data (assumes national DB is complete). Your thesis explicitly designs around Jakarta's 30% null kelurahan, 34% null kodepos. This is not limitation but core design constraint.</li>
+                    <li><strong>Output Transparency:</strong> AddrLLM outputs rewritten string (how certain is it?). Your 4-state confidence schema is epistemic signal—"Verified" vs "Unverifiable" directly communicates data reliability.</li>
+                    <li><strong>Domain-Specific:</strong> AddrLLM nationwide China (no RT/RW). Jakarta has micro-administrative RT/RW layer—your system addresses Indonesian-specific challenges.</li>
+                </ul>
+            </div>
+
+            <div class="key-difference">
+                <strong>Bottom Line:</strong> AddrLLM optimized for nationwide scale with unknown patterns. Your thesis optimized for single-region deep understanding with data-rumpang awareness. Both are valid but address different constraints.
+            </div>
+        </section>
+
+        <!-- ADDRKG-LLM SECTION -->
+        <section id="addrkg" class="paper-section">
+            <div class="paper-title">
+                <div>
+                    <h3>🚨 AddrKG-LLM: Patient Address Parsing via KG-aware Contrastive Learning</h3>
+                    <p class="paper-authors">Li et al. (2024/2026) | Scientific Reports | Medical Records Domain</p>
+                </div>
+                <span class="threat-badge threat-critical"><span class="emoji">⚠️</span> CRITICAL THREAT</span>
+            </div>
+
+            <div class="section-grid">
+                <div class="grid-item">
+                    <h4>Their Methodology</h4>
+                    <ul>
+                        <li><strong>Stage 1:</strong> Knowledge Graph (KG) with contrastive learning</li>
+                        <li>Multi-view graph aggregation over admin hierarchy</li>
+                        <li>Retrieval: Top-K candidates from KG via cosine similarity</li>
+                        <li><strong>Stage 2:</strong> Candidate-restricted LLM decoding</li>
+                        <li>LLM output constrained to Top-K candidates (bounded search space)</li>
+                        <li><strong>Output:</strong> Hierarchical JSON tuples with per-field accuracy</li>
+                        <li><strong>Privacy:</strong> On-premise deployment (no external API calls)</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Why They Chose This</h4>
+                    <div class="methodology-why">
+                        <strong>Problem Context:</strong> Medical records (patient privacy-critical, on-prem required, schema must be strictly enforced)
+                    </div>
+                    <ul>
+                        <li><strong>Privacy:</strong> Medical data sensitive → on-prem deployment required</li>
+                        <li><strong>Hierarchy Awareness:</strong> KG topology encodes admin relations → better bounded search</li>
+                        <li><strong>Schema Compliance:</strong> Candidate restriction prevents invalid outputs</li>
+                        <li><strong>Hierarchy Leverage:</strong> Contrastive learning aligns embeddings to admin relations</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h4 style="color: #667eea; margin-top: 20px;">Side-by-Side Comparison</h4>
+            <table class="comparison-table">
+                <tr>
+                    <th>Dimension</th>
+                    <th class="column-dimas">Your Thesis</th>
+                    <th class="column-competitor">AddrKG-LLM</th>
+                </tr>
+                <tr>
+                    <td><strong>Pipeline Structure</strong></td>
+                    <td class="column-dimas">2-stage: SLM extraction → Deterministic lookup</td>
+                    <td class="column-competitor">2-stage: KG retrieval → Constrained LLM</td>
+                </tr>
+                <tr>
+                    <td><strong>Knowledge Representation</strong></td>
+                    <td class="column-dimas">Indexed CSV files (full2.csv, master data)</td>
+                    <td class="column-competitor">Knowledge Graph with embeddings</td>
+                </tr>
+                <tr>
+                    <td><strong>Retrieval Mechanism</strong></td>
+                    <td class="column-dimas">Exact/fuzzy match (deterministic)</td>
+                    <td class="column-competitor">Top-K cosine similarity (probabilistic)</td>
+                </tr>
+                <tr>
+                    <td><strong>Retrieval Failure Risk</strong></td>
+                    <td class="column-dimas">Zero (if field in DB, guaranteed found)</td>
+                    <td class="column-competitor">High (if gold entry not in Top-K, cannot recover)</td>
+                </tr>
+                <tr>
+                    <td><strong>Incomplete DB Handling</strong></td>
+                    <td class="column-dimas">Explicit (Unverifiable state)</td>
+                    <td class="column-competitor">Not modeled (assumes KG coverage complete)</td>
+                </tr>
+                <tr>
+                    <td><strong>Confidence Schema</strong></td>
+                    <td class="column-dimas">4-state per field as first-class output</td>
+                    <td class="column-competitor">Binary accuracy metrics only</td>
+                </tr>
+            </table>
+
+            <div class="threat-analysis">
+                <h4><span class="emoji">⚠️</span> Why AddrKG-LLM Is a Threat</h4>
+                <ul>
+                    <li><strong>Most Similar Pipeline:</strong> Both are 2-stage, both output hierarchical JSON, both do external knowledge grounding</li>
+                    <li><strong>Examiner Risk:</strong> "Isn't your AdminVerifier just a non-learned version of their KG + Top-K retrieval?"</li>
+                    <li><strong>Complexity Comparison:</strong> They use advanced graph ML (contrastive learning, GraphSAGE). You use simple indexed lookup. Question: Is simplicity enough to claim novelty?</li>
+                </ul>
+            </div>
+
+            <div class="defense-box">
+                <h4><span class="emoji">🛡️</span> How to Defend Against This Threat</h4>
+                <p><strong>Key Argument:</strong> Deterministic beats probabilistic for incomplete data.</p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Retrieval Failure Risk:</strong> AddrKG-LLM Stage 1 returns Top-K set. If gold entry isn't in Top-K (due to embedding miss or KG gap), Stage 2 CANNOT recover. Your AdminVerifier: exact match = guaranteed find or explicit Unverifiable.</li>
+                    <li><strong>Data Rumpang Is Core:</strong> AddrKG-LLM assumes KG coverage is complete (medical records context). Your thesis explicitly measures Jakarta DB gaps (30% kelurahan null) and designs system architecture around this constraint. This is orthogonal innovation.</li>
+                    <li><strong>Confidence Schema Is Unique:</strong> AddrKG-LLM reports accuracy metrics (Amicro, Amacro, Recall@K). Your 4-state confidence schema is independent contribution—it reports epistemic state per field to user, not just aggregate metrics.</li>
+                    <li><strong>Modularity Advantage:</strong> AdminVerifier is post-hoc, non-parametric. Can update DB instantly without retraining. Their KG + contrastive learning requires retraining when KG changes.</li>
+                    <li><strong>Modular Advantage Detail:</strong> "Their approach is tightly coupled (KG trained into embeddings). My AdminVerifier is loosely coupled (post-hoc verification). For thesis context with evolving Jakarta admin data, modularity is advantage."</li>
+                </ul>
+            </div>
+
+            <div class="key-difference">
+                <strong>Bottom Line:</strong> AddrKG-LLM uses sophisticated learned retrieval (good for large, diverse KGs). Your thesis uses simple deterministic lookup + null-honesty (better for single-region incomplete data where "don't know" is legitimate answer).
+            </div>
+        </section>
+
+        <!-- GEOAGENT SECTION -->
+        <section id="geoagent" class="paper-section">
+            <div class="paper-title">
+                <div>
+                    <h3>🟠 GeoAgent: LLM Empowered with Geospatial Tools for Address Standardization</h3>
+                    <p class="paper-authors">Huang et al. (2024) | ACL Findings | Fudan University + IFLYTEK</p>
+                </div>
+                <span class="threat-badge threat-high"><span class="emoji">⚠️</span> HIGH THREAT</span>
+            </div>
+
+            <div class="section-grid">
+                <div class="grid-item">
+                    <h4>Their Methodology</h4>
+                    <ul>
+                        <li><strong>Agentic Framework:</strong> LLM as orchestrator</li>
+                        <li>Dynamic tool invocation (geocoding API, POI search, etc.)</li>
+                        <li>Multi-turn reasoning loop</li>
+                        <li>External APIs: GeoNames, Nominatim, ArcGIS fallback</li>
+                        <li><strong>Output:</strong> Standard address string (complete, corrected)</li>
+                        <li><strong>Handles:</strong> Directional descriptions, colloquial references</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Why They Chose This</h4>
+                    <div class="methodology-why">
+                        <strong>Problem Context:</strong> User-submitted addresses with diverse informal descriptions (navigation, ride-hailing, food delivery apps)
+                    </div>
+                    <ul>
+                        <li><strong>Flexibility:</strong> Multi-turn reasoning for complex descriptions ("200m west of intersection X")</li>
+                        <li><strong>Leverage External APIs:</strong> GeoNames has worldwide coverage (don't need to build DB)</li>
+                        <li><strong>Handle Unseen Patterns:</strong> LLM can reason about spatial relationships dynamically</li>
+                        <li><strong>Scale:</strong> No local DB needed, external APIs handle scalability</li>
+                    </ul>
+                </div>
+            </div>
+
+            <table class="comparison-table">
+                <tr>
+                    <th>Dimension</th>
+                    <th class="column-dimas">Your Thesis</th>
+                    <th class="column-competitor">GeoAgent</th>
+                </tr>
+                <tr>
+                    <td><strong>Architecture Type</strong></td>
+                    <td class="column-dimas">Two-stage pipeline (deterministic)</td>
+                    <td class="column-competitor">Agentic loop (multi-turn reasoning)</td>
+                </tr>
+                <tr>
+                    <td><strong>External Knowledge</strong></td>
+                    <td class="column-dimas">Local indexed databases (offline-capable)</td>
+                    <td class="column-competitor">External API calls (online-dependent)</td>
+                </tr>
+                <tr>
+                    <td><strong>Latency</strong></td>
+                    <td class="column-dimas">Low (indexed lookup)</td>
+                    <td class="column-competitor">High (multiple API calls per query)</td>
+                </tr>
+                <tr>
+                    <td><strong>Privacy</strong></td>
+                    <td class="column-dimas">High (no external data transmission)</td>
+                    <td class="column-competitor">Low (addresses sent to external APIs)</td>
+                </tr>
+                <tr>
+                    <td><strong>Debuggability</strong></td>
+                    <td class="column-dimas">High (deterministic trace)</td>
+                    <td class="column-competitor">Low (multi-turn agentic state hard to debug)</td>
+                </tr>
+            </table>
+
+            <div class="threat-analysis">
+                <h4><span class="emoji">⚠️</span> Why GeoAgent Could Be a Threat</h4>
+                <ul>
+                    <li><strong>Problem Framing Similar:</strong> "LLM + external spatial knowledge for address normalization"</li>
+                    <li><strong>Examiner Risk:</strong> "Why build local AdminVerifier when you can just call external geocoding APIs like GeoAgent?"</li>
+                </ul>
+            </div>
+
+            <div class="defense-box">
+                <h4><span class="emoji">🛡️</span> How to Defend Against This Threat</h4>
+                <p><strong>Key Arguments:</strong> Different constraints require different solutions.</p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Latency & Privacy:</strong> GeoAgent requires API calls each inference (high latency, privacy risk—addresses sent externally). Your AdminVerifier is local indexed lookup (milliseconds, zero privacy leak).</li>
+                    <li><strong>Debuggability:</strong> GeoAgent multi-turn agentic loop hard to trace failures. Your two-stage pipeline: clear separation between "SLM hallucination" vs "AdminVerifier rejection".</li>
+                    <li><strong>Data Rumpang:</strong> GeoAgent assumes external APIs have complete coverage. Jakarta data has known gaps (30% kelurahan null). Your system honest about this; GeoAgent would silent-fail or hallucinate.</li>
+                    <li><strong>No Confidence Schema:</strong> GeoAgent binary output (succeed/fail). Your 4-state confidence reports epistemic state—independent contribution.</li>
+                </ul>
+            </div>
+
+            <div class="key-difference">
+                <strong>Bottom Line:</strong> GeoAgent optimized for flexibility + external scale. Your thesis optimized for privacy + transparency + offline-capability. Different design philosophies.
+            </div>
+        </section>
+
+        <!-- SLOT SECTION -->
+        <section id="slot" class="paper-section">
+            <div class="paper-title">
+                <div>
+                    <h3>🟠 SLOT: Structuring the Output of Large Language Models</h3>
+                    <p class="paper-authors">Wang et al. (2025) | arXiv:2505.04016 | Amazon Web Services</p>
+                </div>
+                <span class="threat-badge threat-high"><span class="emoji">⚠️</span> HIGH THREAT</span>
+            </div>
+
+            <div class="section-grid">
+                <div class="grid-item">
+                    <h4>Their Methodology</h4>
+                    <ul>
+                        <li><strong>Post-Processing Approach:</strong> Model-agnostic schema correction</li>
+                        <li>Fine-tuned Mistral-7B (dedicated post-processor)</li>
+                        <li>Constrained decoding (enforces valid JSON)</li>
+                        <li><strong>Achieves:</strong> 99.5% schema accuracy</li>
+                        <li>Works with any upstream LLM (no retraining needed)</li>
+                        <li><strong>Result:</strong> Schema-compliant JSON with ~94% content preservation</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Why They Chose This</h4>
+                    <div class="methodology-why">
+                        <strong>Problem Context:</strong> LLMs produce semantically valid but structurally invalid JSON (nested brackets, wrong keys, etc.)
+                    </div>
+                    <ul>
+                        <li><strong>Generality:</strong> Works with any LLM (Claude, GPT, etc.)</li>
+                        <li><strong>Simplicity:</strong> Single post-processor, no complex pipeline</li>
+                        <li><strong>99.5% Accuracy:</strong> Strong structural guarantees</li>
+                        <li><strong>Modularity:</strong> Can swap upstream LLM without changing post-processor</li>
+                    </ul>
+                </div>
+            </div>
+
+            <table class="comparison-table">
+                <tr>
+                    <th>Dimension</th>
+                    <th class="column-dimas">Your Thesis</th>
+                    <th class="column-competitor">SLOT</th>
+                </tr>
+                <tr>
+                    <td><strong>Post-Processor Type</strong></td>
+                    <td class="column-dimas">Deterministic domain-specific (AdminVerifier)</td>
+                    <td class="column-competitor">Learned generic schema-corrector (Mistral-7B)</td>
+                </tr>
+                <tr>
+                    <td><strong>Responsibility</strong></td>
+                    <td class="column-dimas">Semantic verification (content correctness)</td>
+                    <td class="column-competitor">Structural compliance only (format correctness)</td>
+                </tr>
+                <tr>
+                    <td><strong>Example</strong></td>
+                    <td class="column-dimas">SLM says "kecamatan: Gambir" → AdminVerifier checks if Gambir valid for Kelurahan 'Ancol' (semantic check)</td>
+                    <td class="column-competitor">LLM outputs malformed JSON → SLOT fixes brackets, quotes (structural check)</td>
+                </tr>
+                <tr>
+                    <td><strong>Confidence Schema</strong></td>
+                    <td class="column-dimas">4-state (Verified/Inferred/Unverifiable/Free-form)</td>
+                    <td class="column-competitor">None (just schema compliance)</td>
+                </tr>
+            </table>
+
+            <div class="threat-analysis">
+                <h4><span class="emoji">⚠️</span> Why SLOT Could Be a Threat</h4>
+                <ul>
+                    <li><strong>Post-Hoc Correction Parallel:</strong> Both use post-processing to fix LLM output</li>
+                    <li><strong>Examiner Risk:</strong> "Why build AdminVerifier when SLOT already does post-hoc fixing?"</li>
+                    <li><strong>Simpler Approach:</strong> SLOT's constrained decoding is elegant; AdminVerifier is domain-specific lookup</li>
+                </ul>
+            </div>
+
+            <div class="defense-box">
+                <h4><span class="emoji">🛡️</span> How to Defend Against This Threat</h4>
+                <p><strong>Key Argument:</strong> Structural compliance ≠ Semantic correctness.</p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>SLOT = Structural (what SLOT does):</strong> Ensures output is valid JSON (correct brackets, valid keys). Doesn't check if content is accurate.</li>
+                    <li><strong>AdminVerifier = Semantic (what you do):</strong> Ensures output is factually correct (field values exist in authoritative DB, hierarchy is valid). Structural correctness is prerequisite but not sufficient.</li>
+                    <li><strong>Concrete Example:</strong>
+                        <ul style="margin-left: 20px; margin-top: 8px;">
+                            <li>SLOT: {"kelurahan": "Gambir", "kecamatan": "Penjaringan"} → valid JSON ✓</li>
+                            <li>AdminVerifier: But is Gambir actually in Penjaringan per Jakarta DB? NO → flag as error</li>
+                        </ul>
+                    </li>
+                    <li><strong>Complementary, Not Competing:</strong> SLOT handles Layer 0 (schema), AdminVerifier handles Layer 1 (semantics). Could even be used together: SLOT → AdminVerifier pipeline.</li>
+                    <li><strong>4-State Confidence:</strong> SLOT doesn't output epistemic state. Your confidence schema is independent contribution.</li>
+                </ul>
+            </div>
+
+            <div class="key-difference">
+                <strong>Bottom Line:</strong> SLOT fixes malformed JSON. AdminVerifier grounds JSON in reality (verifies field values against authoritative DB). Different problems, different solutions.
+            </div>
+        </section>
+
+        <!-- GEOINDIA SECTION -->
+        <section id="geoindia" class="paper-section">
+            <div class="paper-title">
+                <div>
+                    <h3>🟡 GeoIndia: A Seq2Seq Geocoding Approach for Indian Addresses</h3>
+                    <p class="paper-authors">Singhal et al. (2024) | EMNLP Industry Track | Meesho</p>
+                </div>
+                <span class="threat-badge threat-moderate"><span class="emoji">⚠️</span> MODERATE THREAT</span>
+            </div>
+
+            <div class="section-grid">
+                <div class="grid-item">
+                    <h4>Their Methodology</h4>
+                    <ul>
+                        <li><strong>Seq2Seq Generative:</strong> Flan-T5-base + QLoRA Llama-3-8B</li>
+                        <li>Task: Predict H3 hexagonal geohash from address string</li>
+                        <li><strong>Strategy:</strong> 29 per-state models (language/script diversity)</li>
+                        <li>Data correction post-processing</li>
+                        <li><strong>Output:</strong> Geohash coordinates (geographic cell location)</li>
+                    </ul>
+                </div>
+
+                <div class="grid-item">
+                    <h4>Why They Chose This</h4>
+                    <div class="methodology-why">
+                        <strong>Problem Context:</strong> E-commerce logistics (Meesho) for diverse-language India
+                    </div>
+                    <ul>
+                        <li><strong>Diversity:</strong> 29 languages/scripts → per-state models needed</li>
+                        <li><strong>Practical Output:</strong> H3 geohash directly usable for delivery routing</li>
+                        <li><strong>QLoRA Llama:</strong> Cost-effective fine-tuning for 29 models</li>
+                        <li><strong>Seq2Seq Natural:</strong> Direct "address text → geohash" is natural generation task</li>
+                    </ul>
+                </div>
+            </div>
+
+            <table class="comparison-table">
+                <tr>
+                    <th>Dimension</th>
+                    <th class="column-dimas">Your Thesis</th>
+                    <th class="column-competitor">GeoIndia</th>
+                </tr>
+                <tr>
+                    <td><strong>Model</strong></td>
+                    <td class="column-dimas">Llama-3.1-8B QLoRA (single model)</td>
+                    <td class="column-competitor">Llama-3-8B QLoRA (29 per-state models)</td>
+                </tr>
+                <tr>
+                    <td><strong>Output Type</strong></td>
+                    <td class="column-dimas">Structured JSON (administrative fields)</td>
+                    <td class="column-competitor">Geohash sequence (geographic coordinates)</td>
+                </tr>
+                <tr>
+                    <td><strong>Purpose</strong></td>
+                    <td class="column-dimas">Administrative normalization (what is this address?)</td>
+                    <td class="column-competitor">Geocoding (where is this address?)</td>
+                </tr>
+                <tr>
+                    <td><strong>Verification Stage</strong></td>
+                    <td class="column-dimas">Yes (AdminVerifier against admin DB)</td>
+                    <td class="column-competitor">No (direct geohash prediction)</td>
+                </tr>
+                <tr>
+                    <td><strong>Confidence Schema</strong></td>
+                    <td class="column-dimas">4-state (Verified/Inferred/Unverifiable/Free-form)</td>
+                    <td class="column-competitor">None (binary accuracy)</td>
+                </tr>
+            </table>
+
+            <div class="threat-analysis">
+                <h4><span class="emoji">⚠️</span> Why GeoIndia Could Be a Threat</h4>
+                <ul>
+                    <li><strong>Similar Model Architecture:</strong> QLoRA Llama-3.x for developing-country address processing</li>
+                    <li><strong>Same Problem Domain:</strong> E-commerce logistics in Southeast/South Asia</li>
+                    <li><strong>Examiner Risk:</strong> "Isn't your thesis just a region-specific version of GeoIndia?"</li>
+                </ul>
+            </div>
+
+            <div class="defense-box">
+                <h4><span class="emoji">🛡️</span> How to Defend Against This Threat</h4>
+                <p><strong>Key Argument:</strong> Different task, different output, different architecture.</p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Task Difference:</strong> GeoIndia = geocoding (where?). Your thesis = address normalization (what is administrative identity?). Fundamentally different goals.</li>
+                    <li><strong>Output Format:</strong> GeoIndia geohash is coordinate on map. Your JSON with kelurahan/kecamatan/RT/RW is administrative classification. Not compatible outputs.</li>
+                    <li><strong>Verification Stage:</strong> GeoIndia no verification (direct geohash prediction). Your AdminVerifier explicitly validates each field against Jakarta DB.</li>
+                    <li><strong>Data Rumpang Handling:</strong> GeoIndia doesn't address incomplete reference data. Your thesis core contribution is explicit modeling of Jakarta's 30% kelurahan null, 34% kodepos null.</li>
+                    <li><strong>Indonesian-Specific:</strong> GeoIndia for all-India diverse languages. Your thesis for Jakarta specific: RT/RW hierarchy (unique to Indonesia), SNI 9037:2021 conformance (Jakarta standard), Pergub-derived master data (local governance).</li>
+                </ul>
+            </div>
+
+            <div class="key-difference">
+                <strong>Bottom Line:</strong> GeoIndia answers "where is this place?" Your thesis answers "what is the administrative identity of this address?" Different tasks, justified by different outputs and architectures.
+            </div>
+        </section>
+
+        <!-- SUMMARY SECTION -->
+        <section id="summary">
+            <h2 style="color: #667eea; margin-bottom: 30px; text-align: center;">📌 Summary: Novelty Defense & Consolidation</h2>
+
+            <div class="summary-box">
+                <h3>Your Core Novelty Claims (What You Own)</h3>
+                <ul>
+                    <li><strong>[N1] Two-Error-Mode Framework:</strong> Decomposes failures into syntactic extraction errors (noisy input) vs semantic verification errors (data rumpang). No competitor explicitly decomposes this.</li>
+                    <li><strong>[N2] Deterministic Admin Grounding:</strong> Post-hoc indexed exact-match lookup (not RAG, not retrieval). Eliminates retrieval failure + hallucination risk simultaneously.</li>
+                    <li><strong>[N3] 4-State Confidence Schema:</strong> {Verified, Inferred, Unverifiable, Free-form} as first-class output communicating epistemic state. No competitor outputs this.</li>
+                    <li><strong>[N4] Null-Honesty Principle:</strong> System explicitly reports missing data (Unverifiable) instead of hallucinating. Operationalized in both corpus (frozen template) and architecture (AdminVerifier).</li>
+                    <li><strong>[N5] Data Rumpang as Design Constraint:</strong> Explicitly models Jakarta's 30% kelurahan null, 34% kodepos null. Unique to this region, foundational to architecture.</li>
+                    <li><strong>[N6] Hybrid Synthetic Corpus:</strong> Rule-based injection of realistic admin gaps + external LLM (only for syntactic variation). 230k samples engineered to two-error-mode taxonomy.</li>
+                    <li><strong>[N7] Proof of Sufficiency:</strong> 8B SLM + deterministic grounding achieves competitive performance at massive cost/privacy savings vs large LLMs.</li>
+                    <li><strong>[N8] Indonesian-Specific:</strong> Jakarta RT/RW micro-administrative layer + SNI 9037:2021 + Pergub-derived data. Unique to Indonesian context.</li>
+                </ul>
+            </div>
+
+            <div style="background: #e3f2fd; border-left: 4px solid #1976d2; padding: 25px; margin: 30px 0; border-radius: 8px;">
+                <h3 style="color: #0d47a1; margin-bottom: 15px;">🎯 The Unique Combination Argument</h3>
+                <p style="margin-bottom: 15px;">
+                    <strong>No single competitor paper has ALL of these elements simultaneously:</strong>
+                </p>
+                <ul>
+                    <li>Domain-adapted generative SLM (QLoRA Llama) for structured JSON extraction</li>
+                    <li>+ Deterministic post-hoc grounding (indexed lookup, not RAG/retrieval)</li>
+                    <li>+ Explicit null-honesty principle (Unverifiable state, no hallucination)</li>
+                    <li>+ 4-state per-field confidence schema as first-class output</li>
+                    <li>+ Data rumpang as explicit design constraint (not limitation to work around)</li>
+                    <li>+ Indonesian-specific Jakarta hierarchy + OOA term handling</li>
+                    <li>+ Two-error-mode framework for corpus engineering</li>
+                </ul>
+                <p style="margin-top: 15px; font-weight: 600; color: #0d47a1;">
+                    ↳ Each component might have precedent somewhere, but THIS COMBINATION is novel and defensible.
+                </p>
+            </div>
+
+            <h3 style="color: #667eea; margin-top: 40px; margin-bottom: 20px;">Threat Ranking & Defense Strategy</h3>
+
+            <table class="comparison-table">
+                <tr>
+                    <th style="width: 20%;">Rank</th>
+                    <th style="width: 30%;">Paper</th>
+                    <th style="width: 50%;">Defense Strategy</th>
+                </tr>
+                <tr>
+                    <td><span class="threat-badge threat-critical">CRITICAL</span></td>
+                    <td><strong>AddrLLM</strong></td>
+                    <td>"Different constraints. We deterministic + rumpang-aware; they nationwide-scale + flexible. Both valid."</td>
+                </tr>
+                <tr>
+                    <td><span class="threat-badge threat-critical">CRITICAL</span></td>
+                    <td><strong>AddrKG-LLM</strong></td>
+                    <td>"Probabilistic retrieval vs deterministic. They assume complete KG; we explicit-model incomplete data. Our 4-state schema orthogonal."</td>
+                </tr>
+                <tr>
+                    <td><span class="threat-badge threat-high">HIGH</span></td>
+                    <td><strong>GeoAgent</strong></td>
+                    <td>"They optimize flexibility + external scale; we optimize privacy + offline + transparency. Different design philosophies."</td>
+                </tr>
+                <tr>
+                    <td><span class="threat-badge threat-high">HIGH</span></td>
+                    <td><strong>SLOT</strong></td>
+                    <td>"They structural (JSON format); we semantic (field correctness). Complementary layers, not competing."</td>
+                </tr>
+                <tr>
+                    <td><span class="threat-badge threat-moderate">MODERATE</span></td>
+                    <td><strong>GeoIndia</strong></td>
+                    <td>"Different task (geocoding vs normalization), different output (geohash vs JSON), different architecture (no verification). Plus Indonesian-specific."</td>
+                </tr>
+            </table>
+
+            <div style="background: #fff9c4; border-left: 4px solid #fbc02d; padding: 25px; margin: 30px 0; border-radius: 8px;">
+                <h3 style="color: #f57f17; margin-bottom: 15px;">⚡ Talking Points for Consultation</h3>
+                <ol style="margin-left: 20px;">
+                    <li><strong>"My thesis doesn't claim any single component is novel. The novelty is the combination designed specifically for Jakarta's constraints."</strong></li>
+                    <li><strong>"Data rumpang (30% null kelurahan, 34% null kodepos) is not a limitation we're hiding. It's our core design constraint. Most competing work assumes complete reference data."</strong></li>
+                    <li><strong>"Null-honesty principle operationalized in BOTH training (frozen template forces 'use null') and inference (AdminVerifier outputs Unverifiable state). This is architectural, not afterthought."</strong></li>
+                    <li><strong>"Two-stage pipeline with clear error attribution: SLM hallucination vs AdminVerifier grounding. This transparency is harder to achieve in integrated approaches (AddrLLM, AddrKG-LLM)."</strong></li>
+                    <li><strong>"4-state confidence schema is first-class output. Not post-processing, not metric. Tells user 'this field is verified', 'this field is missing from DB', etc. Independent contribution."</strong></li>
+                    <li><strong>"Proof of Sufficiency: if 8B SLM achieves 5-10% behind GPT-4 at 1/1000 cost, that's meaningful for developing-country deployment (Indonesia, logistics companies, SMEs)."</strong></li>
+                </ol>
+            </div>
+        </section>
+
+        <footer>
+            <p>Generated for Thesis Consultation Preparation</p>
+            <p style="font-size: 0.85em; margin-top: 10px;">Address Normalization for Jakarta Region using Small Language Models | Dimas Aryaputra</p>
+        </footer>
+    </div>
+</body>
+</html>
